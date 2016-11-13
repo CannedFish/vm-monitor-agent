@@ -23,8 +23,8 @@ class pslist:
             return json.dumps(ret)
         elif mode == '1':
             ret['success'] = True
-            ret['title'] = ['pid', 'name', '%cpu', '%mem', '%diskIO', '%netIO']
-            ret['list'] = [(1, 'a', 0.5, 0.5, 0.5, 0.5), (2, 'b', 0.5, 0.5, 0.5, 0.5)]
+            ret['title'] = ['pid', 'name', '%cpu', '%mem', 'diskIO MBps', 'netIO Mbps']
+            ret['list'] = [(1, 'a', 0.5, 0.5, 5, 5), (2, 'b', 0.5, 0.5, 5, 5)]
             return json.dumps(ret)
         else:
             ret['success'] = False
