@@ -1,3 +1,6 @@
+from threading import Thread, Condition
+import time
+
 # data structure
 class Process(object):
     def __init__(self, pid, name, start):
@@ -39,7 +42,7 @@ class Process(object):
     def cpu_per(self):
         return self._cpu
 
-    @cup_per.setter
+    @cpu_per.setter
     def cpu_per(self, val):
         if val > 1 or val < 0:
             raise ValueError('Bad value, must between 0 and 1')
@@ -120,6 +123,51 @@ class Procs(dict):
                     instance of Process')
             super().__setitem__(key, val)
 
+class WatchQueue(Thread):
+    def __init__(self, delay):
+        Thread.__init__(self)
+        self.threadID = 0
+        self.name = 'WatchQueue'
+        self._queue = []
+        self._delay = delay
+        self._cond = Condition()
+
+    def run(self):
+        print "%s-%d start" % (self.name, self.threadID)
+        WatchQueue.__run(self._queue, self._delay)
+
+    @staticmethod
+    def __run(queue, delay):
+        while True:
+            self._cond.acquire()
+            if len(queue) == 0:
+                # hang this thread
+                print "Watch queue is hanged"
+                self._cond.wait()
+            self._cond.release()
+            # send information
+            time.sleep(delay)
+
+    def add(self, procs):
+        if not isinstance(procs, list):
+            raise ValueError('Bad value, must be a list')
+        self._cond.acquire()
+        self._queue.extend(procs)
+        if len(self._queue) == len(procs):
+            # notify the hanged thread
+            self._cond.notify()
+            print "Watch queue is actived"
+        self._cond.release()
+        
+    def remove(self, procs):
+        if not isinstance(procs, list):
+            raise ValueError('Bad value, must be a list')
+        self._cond.acquire()
+        for proc in procs:
+            if proc in self._queue:
+                self._queue.remove(proc)
+        self._cond.release()
+
 class VM(object):
     def __init__(self):
         self._cpu = None
@@ -139,7 +187,7 @@ class VM(object):
         # alert if needed
 
     @property
-    def mem_per(self)
+    def mem_per(self):
         return self._mem
 
     @mem_per.setter
@@ -150,7 +198,7 @@ class VM(object):
         # alert if needed
 
     @property
-    def disk_per(self)
+    def disk_per(self):
         return self._disk
 
     @disk_per.setter
@@ -161,7 +209,7 @@ class VM(object):
         # alert if needed
 
     @property
-    def net_per(self)
+    def net_per(self):
         return self._net
 
     @net_per.setter
@@ -174,6 +222,7 @@ class VM(object):
 # data store
 procs = Procs()
 vm = VM()
+wq = WatchQueue(3)
 
 # data fetch api
 def get_proc_list(mode):
@@ -188,11 +237,17 @@ def get_proc_list(mode):
 
 def proc_watch(procs):
     # need all?
-    return False
+    for proc in procs:
+        proc.watch()
+    wq.add(procs)
+    return True
 
 def proc_unwatch(procs):
     # need all?
-    return False
+    for proc in procs:
+        proc.unwatch()
+    wq.remove(procs)
+    return True
 
 def get_vm_status():
     return []

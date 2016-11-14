@@ -1,6 +1,8 @@
 import web
 import json
 
+import data_collector as dc
+
 urls = (
     '/api/proc/list/(\d)', 'pslist',
     '/api/proc/watch', 'watch_process',
@@ -34,12 +36,20 @@ class pslist:
 class watch_process:
     def POST(self):
         data = web.input()
-        return "%s watched" % data.procs
+        ret = {
+            'success': True,
+            'msg': "%s are watched" % data.procs
+        }
+        return json.dumps(ret)
 
 class unwatch_process:
     def POST(self):
         data = web.input()
-        return "%s unwatched" % data.procs
+        ret = {
+            'success': True,
+            'msg': "%s are unwatched" % data.procs
+        }
+        return json.dumps(ret)
 
 class vm_status:
     def GET(self):
@@ -54,8 +64,10 @@ class vm_status:
         ret['status'] = [0.5, 0.5, 0.5, 0.5]
         return json.dumps(ret)
 
-app = web.application(urls, globals())
+def run(*args, **kwargs):
+    app = web.application(urls, *args, **kwargs)
+    app.run()
 
 if __name__ == '__main__':
-    app.run()
+    run(globals())
 
