@@ -8,7 +8,7 @@ class Process(object):
         self._pid = pid
         self._name = name
         self._start = start
-        self._stop = None
+        self._last_update = start
         self._cpu = None
         self._mem = None
         self._disk = None
@@ -17,6 +17,10 @@ class Process(object):
         self._watched = False
         self._updated = True
         self._status = 'created' # ('created','running','deleted')
+
+    def __str__(self):
+        return "(%d,%s,%f,%f,%f,%f)" % (self._pid, self._name, \
+                self._cpu, self._mem, self._disk, self._net)
 
     @property
     def pid(self):
@@ -31,12 +35,18 @@ class Process(object):
         return self._start
 
     @property
-    def stop_time(self):
-        return self._stop
+    def update_time(self):
+        return self._last_update
+
+    @update_time.setter
+    def update_time(self, val):
+        if val < self._last_update:
+            raise ValueError('Bad value, must bigger than last')
+        self._last_update = val
 
     @property
     def during_time(self):
-        return self._stop - self._start
+        return self._last_update - self._start
 
     @property
     def cpu_per(self):
@@ -105,7 +115,6 @@ class Process(object):
             if self._status in ('created','running') \
                     and val == 'deleted':
                 # send an event
-                # self._stop = now
                 pass
         self._status = val
 
@@ -121,7 +130,7 @@ class Procs(dict):
         if not isinstance(val, Process):
             raise ValueError('Bad value, must be an \
                     instance of Process')
-            super().__setitem__(key, val)
+        super(Procs, self).__setitem__(key, val)
 
 class WatchQueue(Thread):
     def __init__(self, delay):
@@ -134,18 +143,19 @@ class WatchQueue(Thread):
 
     def run(self):
         print "%s-%d start" % (self.name, self.threadID)
-        WatchQueue.__run(self._queue, self._delay)
+        WatchQueue.__run(self._queue, self._delay, self._cond)
 
     @staticmethod
-    def __run(queue, delay):
+    def __run(queue, delay, cond):
         while True:
-            self._cond.acquire()
+            cond.acquire()
             if len(queue) == 0:
                 # hang this thread
                 print "Watch queue is hanged"
-                self._cond.wait()
-            self._cond.release()
+                cond.wait()
+            cond.release()
             # send information
+            print "Send watched info"
             time.sleep(delay)
 
     def add(self, procs):
@@ -223,45 +233,76 @@ class VM(object):
 procs = Procs()
 vm = VM()
 wq = WatchQueue(3)
+wq.start()
 
 # data fetch api
 def get_proc_list(mode):
     ret = []
     if mode == 0:
         for pid in procs.keys():
-            ret.append(procs[pid].basic())
+            proc = procs[pid]
+            if proc.status in ('created', 'running'):
+                ret.append(proc.basic())
     elif mode == 1:
         for pid in procs.keys():
-            ret.append(procs[pid].complete())
+            proc = procs[pid]
+            if proc.status in ('created', 'running'):
+                ret.append(proc.complete())
     return ret
 
-def proc_watch(procs):
+def proc_watch(pids):
     # need all?
-    for proc in procs:
+    wps = []
+    for pid in pids:
+        proc = procs[pid]
         proc.watch()
-    wq.add(procs)
+        wps.append(proc)
+    wq.add(wps)
     return True
 
-def proc_unwatch(procs):
+def proc_unwatch(pids):
     # need all?
-    for proc in procs:
+    wps = []
+    for pid in pids:
+        proc = procs[pid]
         proc.unwatch()
-    wq.remove(procs)
+        wps.append(proc)
+    wq.remove(wps)
     return True
 
 def get_vm_status():
     return []
 
 # data store api
-def update_proc_basic(data):
+def update_proc_info(data):
     # data from psutil
-    pass
-
-def update_proc_disk(data):
-    pass
-
-def update_proc_net(data):
-    pass
+    # data = [(pid, cmd/name, start, %cpu, %mem, diskio, netio)]
+    # import pdb
+    # pdb.set_trace()
+    pids = procs.keys()
+    for pid in pids:
+        procs[pid].updated = False
+    for pid, name, start_time, cpu, mem, disk, net in data:
+        if not pid in pids:
+            procs[pid] = Process(pid, name, start_time)
+        proc = procs[pid]
+        proc.cpu_per = cpu
+        proc.mem_per = mem
+        proc.disk_io = disk
+        proc.net_io = net
+        proc.status = 'running'
+        proc.updated = True
+    # handle deleted processes
+    # TODO: not worked
+    now = time.time()
+    d_procs = []
+    for pid in pids:
+        if not procs[pid].updated:
+            procs[pid].status = 'deleted'
+            procs[pid].update_time = now
+            d_procs.append(pid)
+    if len(d_procs) > 0:
+        proc_unwatch(d_procs)
 
 def update_vm_basic(data):
     pass

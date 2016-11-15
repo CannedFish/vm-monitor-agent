@@ -21,12 +21,12 @@ class pslist:
         if mode == '0':
             ret['success'] = True
             ret['title'] = ['pid', 'name']
-            ret['list'] = [(1, 'a'), (2, 'b')]
+            ret['list'] = dc.get_proc_list(0)
             return json.dumps(ret)
         elif mode == '1':
             ret['success'] = True
             ret['title'] = ['pid', 'name', '%cpu', '%mem', 'diskIO MBps', 'netIO Mbps']
-            ret['list'] = [(1, 'a', 0.5, 0.5, 5, 5), (2, 'b', 0.5, 0.5, 5, 5)]
+            ret['list'] = dc.get_proc_list(1)
             return json.dumps(ret)
         else:
             ret['success'] = False
