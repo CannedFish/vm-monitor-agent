@@ -4,5 +4,5 @@
 ```shell
 pip install virtualenv
 virtualenv .venv
-.venv/bin/python install -r requirements.txt
+.venv/bin/pip install -r requirements.txt
 ```

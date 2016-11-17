@@ -1,6 +1,8 @@
 from threading import Thread, Condition
 import time
 
+import report_server_api as api
+
 # data structure
 class Process(object):
     def __init__(self, pid, name, start):
@@ -134,7 +136,7 @@ class Procs(dict):
 
 class WatchQueue(Thread):
     def __init__(self, delay):
-        Thread.__init__(self)
+        super(WatchQueue, self).__init__()
         self.threadID = 0
         self.name = 'WatchQueue'
         self._queue = []
@@ -155,14 +157,16 @@ class WatchQueue(Thread):
                 cond.wait()
             cond.release()
             # send information
-            print "Send watched info"
+            api.send_report([proc.complete() for proc in queue])
             time.sleep(delay)
 
     def add(self, procs):
         if not isinstance(procs, list):
             raise ValueError('Bad value, must be a list')
         self._cond.acquire()
-        self._queue.extend(procs)
+        for proc in procs:
+            if not proc in self._queue:
+                self._queue.append(proc)
         if len(self._queue) == len(procs):
             # notify the hanged thread
             self._cond.notify()
@@ -275,10 +279,9 @@ def get_vm_status():
 
 # data store api
 def update_proc_info(data):
-    # data from psutil
-    # data = [(pid, cmd/name, start, %cpu, %mem, diskio, netio)]
-    # import pdb
-    # pdb.set_trace()
+    """
+    param data: [(pid, cmd/name, start, %cpu, %mem, diskio, netio)]
+    """
     pids = procs.keys()
     for pid in pids:
         procs[pid].updated = False
@@ -297,6 +300,8 @@ def update_proc_info(data):
     now = time.time()
     d_procs = []
     for pid in pids:
+        # import pdb
+        # pdb.set_trace()
         if not procs[pid].updated:
             procs[pid].status = 'deleted'
             procs[pid].update_time = now

@@ -35,7 +35,8 @@ def watch_queue_test():
     print "\nempty queue"
     time.sleep(3)
     print "\nupdate proc info"
-    data = [(i, 'proc'+str(i), time.time(), 0.5, 0.5, 50, 50) for i in xrange(5)]
+    data = [(i, 'proc'+str(i), time.time(), 0.5, 0.5, 50, 50) \
+            for i in xrange(5)]
     dc.update_proc_info(data)
     time.sleep(2)
     print "\nwatch all"
@@ -43,11 +44,14 @@ def watch_queue_test():
     dc.proc_watch(pids)
     time.sleep(16)
     print "\nupdate proc info, again"
-    data = [(i, 'proc'+str(i), time.time(), 0.5, 0.5, 50, 50) for i in xrange(3)]
+    data = [(i, 'proc'+str(i), time.time(), 0.5, 0.5, 50, 50) \
+            for i in xrange(3, 7)]
+    dc.update_proc_info(data)
     print dc.get_proc_list(0)
+    dc.proc_watch(range(3, 6))
     time.sleep(8)
     print "\nunwatch all"
-    dc.proc_unwatch(pids)
+    dc.proc_unwatch(range(0, 6))
 
 if __name__ == '__main__':
     if sys.argv[1] == 'api':
