@@ -56,8 +56,8 @@ class Process(object):
 
     @cpu_per.setter
     def cpu_per(self, val):
-        if val > 1 or val < 0:
-            raise ValueError('Bad value, must between 0 and 1')
+        if val > 100 or val < 0:
+            raise ValueError('Bad value, must between 0 and 100')
         self._cpu = val
         # alert if needed
 
@@ -67,8 +67,9 @@ class Process(object):
 
     @mem_per.setter
     def mem_per(self, val):
-        if val > 1 or val < 0:
-            raise ValueError('Bad value, must between 0 and 1')
+        if val > 100 or val < 0:
+            print val
+            raise ValueError('Bad value, must between 0 and 100')
         self._mem = val
         # alert if needed
 
@@ -308,6 +309,7 @@ def update_proc_info(data):
             d_procs.append(pid)
     if len(d_procs) > 0:
         proc_unwatch(d_procs)
+        # TODO: remove deleted prcesses
 
 def update_vm_basic(data):
     pass

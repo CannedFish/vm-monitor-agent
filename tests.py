@@ -2,6 +2,7 @@ import requests, json, time
 import sys
 
 import data_collector as dc
+import agent
 
 # api test
 def api_test():
@@ -53,6 +54,15 @@ def watch_queue_test():
     print "\nunwatch all"
     dc.proc_unwatch(range(0, 6))
 
+def agent_test():
+    agent.start()
+    time.sleep(5)
+    agent.pause()
+    time.sleep(5)
+    agent.resume()
+    time.sleep(5)
+    agent.stop()
+
 if __name__ == '__main__':
     if sys.argv[1] == 'api':
         api_test()
@@ -60,6 +70,8 @@ if __name__ == '__main__':
         data_collection_test()
     elif sys.argv[1] == 'wq':
         watch_queue_test()
+    elif sys.argv[1] == 'agent':
+        agent_test()
     else:
         print "bad argument"
         sys.exit(1)
