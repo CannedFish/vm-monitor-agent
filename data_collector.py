@@ -13,15 +13,15 @@ class Process(object):
         self._last_update = start
         self._cpu = None
         self._mem = None
-        self._disk = None
-        self._net = None
+        self._disk = None # (r, w)
+        self._net = None # (r, t)
         # status
         self._watched = False
         self._updated = True
         self._status = 'created' # ('created','running','deleted')
 
     def __str__(self):
-        return "(%d,%s,%f,%f,%f,%f)" % (self._pid, self._name, \
+        return "(%d,%s,%f,%f,%s,%s)" % (self._pid, self._name, \
                 self._cpu, self._mem, self._disk, self._net)
 
     @property

@@ -63,6 +63,15 @@ def agent_test():
     time.sleep(5)
     agent.stop()
 
+def agent_linux_test():
+    import fetcher_linux as fe
+    pid = 55138
+    fe.watch(pid)
+    time.sleep(1)
+    print fe.disk(pid)
+    print fe.net(pid)
+    fe.unwatch(pid)
+
 if __name__ == '__main__':
     if sys.argv[1] == 'api':
         api_test()
@@ -72,6 +81,8 @@ if __name__ == '__main__':
         watch_queue_test()
     elif sys.argv[1] == 'agent':
         agent_test()
+    elif sys.argv[1] == 'aglinux':
+        agent_linux_test()
     else:
         print "bad argument"
         sys.exit(1)
