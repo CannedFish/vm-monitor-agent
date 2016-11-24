@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 # Wrapper APIs of server to be reported
 import requests
 import json
+from config import settings
 
 def __do_get(url):
     try:
@@ -35,7 +37,8 @@ def send_report(data):
     if not isinstance(data, dict) and \
             not isinstance(data, list):
         raise ValueError('Bad value, must be dict or list')
-    # return __do_post('/somewhere', data)
+    url = settings.report_server_ip + '/'
+    # return __do_post(url, data)
     print "send report:\n%s" % data
     return True
 

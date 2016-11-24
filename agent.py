@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from threading import Thread, Condition
 import time
 import psutil

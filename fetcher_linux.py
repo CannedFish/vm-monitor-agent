@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 # Fetch disk and net data of each process in Linux
 import re
 import time
+from config import settings
 
 class ProcDiskNet(object):
     def __init__(self, pid):
@@ -35,8 +37,14 @@ class ProcDiskNet(object):
                 data[l[0].strip()] = map(int, filter(lambda x: x!="", \
                         re.split('\s+', l[1])))
         self._net_fd.seek(0)
+        rx, tx = 0, 0
+        keys = data.keys()
+        for eth in settings['net_interface']:
+            if eth in keys:
+                rx += data[eth][0]
+                tx += data[eth][8]
         # print data
-        return data['eth0'][0], data['eth0'][8], t
+        return rx, tx, t
 
     @property
     def disk(self):

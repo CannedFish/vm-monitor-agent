@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Fetch disk and net data of each process in Windows
 
 def disk(pid):

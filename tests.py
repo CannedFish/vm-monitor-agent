@@ -1,8 +1,6 @@
+# -*- coding: utf-8 -*-
 import requests, json, time
 import sys
-
-import data_collector as dc
-import agent
 
 # api test
 def api_test():
@@ -23,6 +21,8 @@ def api_test():
 
 # test data collection
 def data_collection_test():
+    import data_collector as dc
+    
     data = [(i, 'proc'+str(i), time.time(), 0.5, 0.5, 50, 50) for i in xrange(5)]
     dc.update_proc_info(data)
     print "basic:"
@@ -32,6 +32,8 @@ def data_collection_test():
 
 # test watch queue
 def watch_queue_test():
+    import data_collector as dc
+    
     time.sleep(1)
     print "\nempty queue"
     time.sleep(3)
@@ -55,6 +57,8 @@ def watch_queue_test():
     dc.proc_unwatch(range(0, 6))
 
 def agent_test():
+    import agent
+    
     agent.start()
     time.sleep(5)
     agent.pause()
@@ -72,6 +76,10 @@ def agent_linux_test():
     print fe.net(pid)
     fe.unwatch(pid)
 
+def config_test():
+    from config import settings
+    print settings
+
 if __name__ == '__main__':
     if sys.argv[1] == 'api':
         api_test()
@@ -83,6 +91,8 @@ if __name__ == '__main__':
         agent_test()
     elif sys.argv[1] == 'aglinux':
         agent_linux_test()
+    elif sys.argv[1] == 'config':
+        config_test()
     else:
         print "bad argument"
         sys.exit(1)
