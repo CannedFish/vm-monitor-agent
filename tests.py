@@ -4,19 +4,19 @@ import sys
 
 # api test
 def api_test():
-    r = requests.get('http://0.0.0.0:9999/api/proc/list/0')
+    r = requests.get('http://127.0.0.1:9999/api/proc/list/0')
     print "proc list mode 0: \n%s" % r.json()
 
-    r = requests.get('http://0.0.0.0:9999/api/proc/list/1')
+    r = requests.get('http://127.0.0.1:9999/api/proc/list/1')
     print "proc list mode 1: \n%s" % r.json()
 
-    data = [1, 2, 3, 5]
-    r = requests.post('http://0.0.0.0:9999/api/proc/watch', \
+    data = [27228]
+    r = requests.post('http://127.0.0.1:9999/api/proc/watch', \
             data='procs='+json.dumps(data))
     print "proc watch: %s" % r.json()
     time.sleep(20)
 
-    r = requests.post('http://0.0.0.0:9999/api/proc/unwatch', \
+    r = requests.post('http://127.0.0.1:9999/api/proc/unwatch', \
             data='procs='+json.dumps(data))
     print "proc watch: %s" % r.json()
 
