@@ -5,15 +5,16 @@ import sys
 # api test
 def api_test():
     r = requests.get('http://0.0.0.0:9999/api/proc/list/0')
-    print "proc list mode 0: %s" % r.json()
+    print "proc list mode 0: \n%s" % r.json()
 
     r = requests.get('http://0.0.0.0:9999/api/proc/list/1')
-    print "proc list mode 1: %s" % r.json()
+    print "proc list mode 1: \n%s" % r.json()
 
-    data = [0, 1, 2, 3, 4]
+    data = [1, 2, 3, 5]
     r = requests.post('http://0.0.0.0:9999/api/proc/watch', \
             data='procs='+json.dumps(data))
     print "proc watch: %s" % r.json()
+    time.sleep(20)
 
     r = requests.post('http://0.0.0.0:9999/api/proc/unwatch', \
             data='procs='+json.dumps(data))
@@ -39,7 +40,7 @@ def watch_queue_test():
     time.sleep(3)
     print "\nupdate proc info"
     data = [(i, 'proc'+str(i), time.time(), 0.5, 0.5, 50, 50) \
-            for i in xrange(5)]
+            for i in [1, 2, 3, 5]]
     dc.update_proc_info(data)
     time.sleep(2)
     print "\nwatch all"
@@ -48,13 +49,13 @@ def watch_queue_test():
     time.sleep(16)
     print "\nupdate proc info, again"
     data = [(i, 'proc'+str(i), time.time(), 0.5, 0.5, 50, 50) \
-            for i in xrange(3, 7)]
+            for i in (5, 7, 8, 9)]
     dc.update_proc_info(data)
     print dc.get_proc_list(0)
-    dc.proc_watch(range(3, 6))
+    dc.proc_watch([3, 5, 7])
     time.sleep(8)
     print "\nunwatch all"
-    dc.proc_unwatch(range(0, 6))
+    dc.proc_unwatch([5, 7, 8, 9])
 
 def agent_test():
     import agent

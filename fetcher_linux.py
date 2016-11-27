@@ -11,10 +11,10 @@ class ProcDiskNet(object):
         self._net_fd = open('/proc/%d/net/dev' % pid)
         self._d_read, self._d_write, self._d_time = self.__get_and_parse_disk()
         self._n_receive, self._n_transmit, self._n_time = self.__get_and_parse_net()
-        print "watch %d" % self._pid
+        # print "watch %d" % self._pid
 
     def __del__(self):
-        print "unwatch %d" % self._pid
+        # print "unwatch %d" % self._pid
         self._disk_fd.close()
         self._net_fd.close()
 
@@ -49,17 +49,23 @@ class ProcDiskNet(object):
     @property
     def disk(self):
         d_read, d_write, d_time = self.__get_and_parse_disk()
-        r_read = (d_read-self._d_read)/(d_time-self._d_time) # bytes per second
-        r_write = (d_write-self._d_write)/(d_time-self._d_time) # bytes per second
-        self._d_read, self._d_write, self._d_time = d_read, d_write, d_time
+        # bytes per second
+        r_read = (d_read-self._d_read)/(d_time-self._d_time)
+        # bytes per second
+        r_write = (d_write-self._d_write)/(d_time-self._d_time)
+        self._d_read, self._d_write, self._d_time = \
+                d_read, d_write, d_time
         return round(r_read, 1), round(r_write, 1)
 
     @property
     def net(self):
         n_receive, n_transmit, n_time = self.__get_and_parse_net()
-        r_read = (n_receive-self._n_receive)/(n_time-self._n_time) # bytes per second
-        r_write = (n_transmit-self._n_transmit)/(n_time-self._n_time) # bytes per second
-        self._n_receive, self._n_transmit, self._n_time = n_receive, n_transmit, n_time
+        # bytes per second
+        r_read = (n_receive-self._n_receive)/(n_time-self._n_time)
+        # bytes per second
+        r_write = (n_transmit-self._n_transmit)/(n_time-self._n_time)
+        self._n_receive, self._n_transmit, self._n_time = \
+                n_receive, n_transmit, n_time
         return round(r_read, 1), round(r_write, 1)
 
 watchedprocs = {}
@@ -71,8 +77,12 @@ def unwatch(pid):
     del watchedprocs[pid]
 
 def disk(pid):
-    return watchedprocs[pid].disk
+    if pid in watchedprocs.keys():
+        return watchedprocs[pid].disk
+    return (0, 0)
 
 def net(pid):
-    return watchedprocs[pid].net
+    if pid in watchedprocs.keys():
+        return watchedprocs[pid].net
+    return (0, 0)
 

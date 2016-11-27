@@ -2,17 +2,10 @@
 from threading import Thread, Condition
 import time
 import psutil
-import platform
 
 import data_collector as dc
-
-sysstr = platform.system()
-if sysstr == 'Linux':
-    import fetcher_linux as fetcher
-elif sysstr == 'Windows':
-    import fetcher_win as fetcher
-else:
-    raise ValueError('Platform not support, only Linux and Windows')
+from config import settings
+fetcher = settings['fetcher']
 
 class Agent(Thread):
     def __init__(self, delay):
@@ -49,7 +42,6 @@ class Agent(Thread):
             info.append(fetcher.net(proc.pid))
             data.append(info)
 
-        print "data %d" % len(data)
         return data
 
     @property

@@ -37,7 +37,7 @@ def send_report(data):
     if not isinstance(data, dict) and \
             not isinstance(data, list):
         raise ValueError('Bad value, must be dict or list')
-    url = settings.report_server_ip + '/'
+    url = settings['report_server_ip'] + '/'
     # return __do_post(url, data)
     print "send report:\n%s" % data
     return True

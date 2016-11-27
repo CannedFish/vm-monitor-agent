@@ -3,6 +3,13 @@ from threading import Thread, Condition
 import time
 
 import report_server_api as api
+from config import settings
+fetcher = settings['fetcher']
+
+def LOG(now, event, pid, name):
+    print '[%s] %10s, %6d, %s' \
+            % (time.asctime(time.localtime(now)), \
+            event, pid, name)
 
 # data structure
 class Process(object):
@@ -20,6 +27,7 @@ class Process(object):
         self._watched = False
         self._updated = True
         self._status = 'created' # ('created','running','deleted')
+        LOG(start, 'Created', pid, name)
 
     def __str__(self):
         return "(%d,%s,%f,%f,%s,%s)" % (self._pid, self._name, \
@@ -69,7 +77,6 @@ class Process(object):
     @mem_per.setter
     def mem_per(self, val):
         if val > 100 or val < 0:
-            print val
             raise ValueError('Bad value, must between 0 and 100')
         self._mem = val
         # alert if needed
@@ -93,10 +100,16 @@ class Process(object):
         # alert if needed
 
     def watch(self):
-        self._watched = True
+        if not self._watched:
+            self._watched = True
+            fetcher.watch(self._pid)
+            LOG(time.time(), 'Watched', self._pid, self._name)
 
     def unwatch(self):
-        self._watched = False
+        if self._watched:
+            self._watched = False
+            fetcher.unwatch(self._pid)
+            LOG(time.time(), 'Unwatched', self._pid, self._name)
 
     @property
     def updated(self):
@@ -115,11 +128,13 @@ class Process(object):
         if val not in ('created','running','deleted'):
             raise ValueError('Bad value, must be \
                     created, running or deleted')
-        if self._watched:
-            if self._status in ('created','running') \
-                    and val == 'deleted':
+        if self._status in ('created','running') \
+                and val == 'deleted':
+            stop = time.time()
+            if self._watched:
                 # send an event
                 pass
+            LOG(stop, 'Deleted', self._pid, self._name)
         self._status = val
 
     def basic(self):
@@ -286,7 +301,11 @@ def update_proc_info(data):
     """
     pids = procs.keys()
     for pid in pids:
-        procs[pid].updated = False
+        if procs[pid].status == 'deleted':
+            del procs[pid]
+        else:
+            procs[pid].updated = False
+    pids = procs.keys()
     for pid, name, start_time, cpu, mem, disk, net in data:
         if not pid in pids:
             procs[pid] = Process(pid, name, start_time)
@@ -298,7 +317,6 @@ def update_proc_info(data):
         proc.status = 'running'
         proc.updated = True
     # handle deleted processes
-    # TODO: not worked
     now = time.time()
     d_procs = []
     for pid in pids:

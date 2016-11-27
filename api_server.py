@@ -37,19 +37,35 @@ class pslist:
 class watch_process:
     def POST(self):
         data = web.input()
-        ret = {
-            'success': True,
-            'msg': "%s are watched" % data.procs
-        }
+        try:
+            dc.proc_watch(json.loads(data.procs))
+            ret = {
+                'success': True,
+                'msg': "%s are watched" % data.procs
+            }
+        except Exception, e:
+            ret = {
+                'success': False,
+                'msg': str(e)
+            }
+            print repr(e)
         return json.dumps(ret)
 
 class unwatch_process:
     def POST(self):
         data = web.input()
-        ret = {
-            'success': True,
-            'msg': "%s are unwatched" % data.procs
-        }
+        try:
+            dc.proc_unwatch(json.loads(data.procs))
+            ret = {
+                'success': True,
+                'msg': "%s are unwatched" % data.procs
+            }
+        except Exception, e:
+            ret = {
+                'success': False,
+                'msg': str(e)
+            }
+            print repr(e)
         return json.dumps(ret)
 
 class vm_status:
@@ -66,9 +82,9 @@ class vm_status:
         return json.dumps(ret)
 
 def run(*args, **kwargs):
-    app = web.application(urls, *args, **kwargs)
+    app = web.application(urls, globals(), *args, **kwargs)
     app.run()
 
 if __name__ == '__main__':
-    run(globals())
+    run()
 
