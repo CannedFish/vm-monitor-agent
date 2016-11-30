@@ -4,19 +4,19 @@ import sys
 
 # api test
 def api_test():
-    r = requests.get('http://0.0.0.0:9999/api/proc/list/0')
+    r = requests.get('http://127.0.0.1:9999/api/proc/list/0')
     print "proc list mode 0: \n%s" % r.json()
 
-    r = requests.get('http://0.0.0.0:9999/api/proc/list/1')
+    r = requests.get('http://127.0.0.1:9999/api/proc/list/1')
     print "proc list mode 1: \n%s" % r.json()
 
-    data = [1, 2, 3, 5]
-    r = requests.post('http://0.0.0.0:9999/api/proc/watch', \
+    data = [1060, 10248]
+    r = requests.post('http://127.0.0.1:9999/api/proc/watch', \
             data='procs='+json.dumps(data))
     print "proc watch: %s" % r.json()
     time.sleep(20)
 
-    r = requests.post('http://0.0.0.0:9999/api/proc/unwatch', \
+    r = requests.post('http://127.0.0.1:9999/api/proc/unwatch', \
             data='procs='+json.dumps(data))
     print "proc watch: %s" % r.json()
 
@@ -70,12 +70,29 @@ def agent_test():
 
 def agent_linux_test():
     import fetcher_linux as fe
-    pid = 55138
+    pid = 0
     fe.watch(pid)
     time.sleep(1)
     print fe.disk(pid)
     print fe.net(pid)
     fe.unwatch(pid)
+    
+def agent_win_test():
+    import fetcher_win as fe
+    pid = 4
+    fe.watch(pid)
+    time.sleep(1)
+    print fe.disk(pid)
+    print fe.net(pid)
+    fe.unwatch(pid)
+	
+def wmi_test():
+	from config import settings
+	import wmi
+	c = wmi.WMI()
+	wql = "SELECT * FROM Win32_LogicalDisk"
+	for disk in c.query(wql):
+		print disk
 
 def config_test():
     from config import settings
@@ -92,8 +109,12 @@ if __name__ == '__main__':
         agent_test()
     elif sys.argv[1] == 'aglinux':
         agent_linux_test()
+    elif sys.argv[1] == 'agwin':
+        agent_win_test()
     elif sys.argv[1] == 'config':
         config_test()
+    elif sys.argv[1] == 'wmi':
+		wmi_test()
     else:
         print "bad argument"
         sys.exit(1)

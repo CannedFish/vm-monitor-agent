@@ -66,7 +66,10 @@ class Process(object):
     @cpu_per.setter
     def cpu_per(self, val):
         if val > 100 or val < 0:
-            raise ValueError('Bad value, must between 0 and 100')
+            if self._pid == 0:
+                val = round(val/10.0, 1)
+            else:
+                raise ValueError('Bad value, must between 0 and 100')
         self._cpu = val
         # alert if needed
 
