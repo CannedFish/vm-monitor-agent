@@ -2,6 +2,10 @@
 # Wrapper APIs of server to be reported
 import requests
 import json
+import logging
+
+LOG = logging.getLogger()
+
 from config import settings
 
 def __do_get(url):
@@ -39,6 +43,7 @@ def send_report(data):
         raise ValueError('Bad value, must be dict or list')
     url = settings['report_server_ip'] + '/'
     # return __do_post(url, data)
-    print "send report:\n%s" % data
+    LOG.debug("send report:\n%s" % data)
+    # print "send report:\n%s" % data
     return True
 

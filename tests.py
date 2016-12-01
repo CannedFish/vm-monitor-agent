@@ -10,7 +10,7 @@ def api_test():
     r = requests.get('http://127.0.0.1:9999/api/proc/list/1')
     print "proc list mode 1: \n%s" % r.json()
 
-    data = [1060, 10248]
+    data = [49, 50]
     r = requests.post('http://127.0.0.1:9999/api/proc/watch', \
             data='procs='+json.dumps(data))
     print "proc watch: %s" % r.json()
@@ -98,6 +98,13 @@ def config_test():
     from config import settings
     print settings
 
+def log_test():
+    from config import settings
+    import logging
+    LOG = logging.getLogger()
+    LOG.debug("Log start")
+    LOG.debug("Log end")
+
 if __name__ == '__main__':
     if sys.argv[1] == 'api':
         api_test()
@@ -115,6 +122,8 @@ if __name__ == '__main__':
         config_test()
     elif sys.argv[1] == 'wmi':
 		wmi_test()
+    elif sys.argv[1] == 'log':
+        log_test()
     else:
         print "bad argument"
         sys.exit(1)

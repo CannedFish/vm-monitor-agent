@@ -2,6 +2,9 @@
 from threading import Thread, Condition
 import time
 import psutil
+import logging
+
+LOG = logging.getLogger()
 
 import data_collector as dc
 from config import settings
@@ -18,7 +21,8 @@ class Agent(Thread):
         self._pause = False
 
     def run(self):
-        print "%s-%d started" % (self.name, self.threadID)
+        LOG.debug("%s-%d started" % (self.name, self.threadID))
+        # print "%s-%d started" % (self.name, self.threadID)
         Agent.__run(self)
 
     @staticmethod
@@ -62,18 +66,21 @@ class Agent(Thread):
 
     def stop(self):
         self._exit = True
-        print "%s-%d stoped" % (self.name, self.threadID)
+        LOG.debug("%s-%d stoped" % (self.name, self.threadID))
+        # print "%s-%d stoped" % (self.name, self.threadID)
 
     def pause(self):
         self._pause = True
-        print "%s-%d paused" % (self.name, self.threadID)
+        LOG.debug("%s-%d paused" % (self.name, self.threadID))
+        # print "%s-%d paused" % (self.name, self.threadID)
 
     def resume(self):
         self._pause = False
         self._cond.acquire()
         self._cond.notify()
         self._cond.release()
-        print "%s-%d resumed" % (self.name, self.threadID)
+        LOG.debug("%s-%d resumed" % (self.name, self.threadID))
+        # print "%s-%d resumed" % (self.name, self.threadID)
 
 agent = Agent(3)
 

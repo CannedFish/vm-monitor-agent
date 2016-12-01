@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 from threading import Thread, Condition
 import time
+import logging
+
+LOG = logging.getLogger()
 
 import report_server_api as api
 from config import settings
 fetcher = settings['fetcher']
 
-def LOG(now, event, pid, name):
-    print '[%s] %10s, %6d, %s' \
+def FMT(now, event, pid, name):
+    return '[%s] %10s, %6d, %s' \
             % (time.asctime(time.localtime(now)), \
             event, pid, name)
 
@@ -27,7 +30,7 @@ class Process(object):
         self._watched = False
         self._updated = True
         self._status = 'created' # ('created','running','deleted')
-        LOG(start, 'Created', pid, name)
+        LOG.debug(FMT(start, 'Created', pid, name))
 
     def __str__(self):
         return "(%d,%s,%f,%f,%s,%s)" % (self._pid, self._name, \
@@ -106,13 +109,13 @@ class Process(object):
         if not self._watched:
             self._watched = True
             fetcher.watch(self._pid)
-            LOG(time.time(), 'Watched', self._pid, self._name)
+            LOG.debug(FMT(time.time(), 'Watched', self._pid, self._name))
 
     def unwatch(self):
         if self._watched:
             self._watched = False
             fetcher.unwatch(self._pid)
-            LOG(time.time(), 'Unwatched', self._pid, self._name)
+            LOG.debug(FMT(time.time(), 'Unwatched', self._pid, self._name))
 
     @property
     def updated(self):
@@ -137,7 +140,7 @@ class Process(object):
             if self._watched:
                 # send an event
                 pass
-            LOG(stop, 'Deleted', self._pid, self._name)
+            LOG.debug(FMT(stop, 'Deleted', self._pid, self._name))
         self._status = val
 
     def basic(self):
@@ -162,23 +165,31 @@ class WatchQueue(Thread):
         self._queue = []
         self._delay = delay
         self._cond = Condition()
+        self._exit = False
+
+    @property
+    def toExit(self):
+        return self._exit
 
     def run(self):
-        print "%s-%d start" % (self.name, self.threadID)
-        WatchQueue.__run(self._queue, self._delay, self._cond)
+        LOG.debug("%s-%d start" % (self.name, self.threadID))
+        # print "%s-%d start" % (self.name, self.threadID)
+        WatchQueue.__run(self, self._queue, self._delay, self._cond)
 
     @staticmethod
-    def __run(queue, delay, cond):
-        while True:
+    def __run(ins, queue, delay, cond):
+        while not ins.toExit:
             cond.acquire()
             if len(queue) == 0:
                 # hang this thread
-                print "Watch queue is hanged"
+                LOG.debug("Watch queue is hanged")
+                # print "Watch queue is hanged"
                 cond.wait()
             cond.release()
             # send information
             api.send_report([proc.complete() for proc in queue])
             time.sleep(delay)
+        LOG.debug("%s-%d stoped" % (ins.name, ins.threadID))
 
     def add(self, procs):
         if not isinstance(procs, list):
@@ -190,7 +201,8 @@ class WatchQueue(Thread):
         if len(self._queue) == len(procs):
             # notify the hanged thread
             self._cond.notify()
-            print "Watch queue is actived"
+            LOG.debug("Watch queue is actived")
+            # print "Watch queue is actived"
         self._cond.release()
         
     def remove(self, procs):
@@ -201,6 +213,13 @@ class WatchQueue(Thread):
             if proc in self._queue:
                 self._queue.remove(proc)
         self._cond.release()
+
+    def stop(self):
+        self._exit = True
+        if len(self._queue) == 0:
+            self._cond.acquire()
+            self._cond.notify()
+            self._cond.release()
 
 class VM(object):
     def __init__(self):
@@ -257,7 +276,6 @@ class VM(object):
 procs = Procs()
 vm = VM()
 wq = WatchQueue(3)
-wq.start()
 
 # data fetch api
 def get_proc_list(mode):

@@ -48,12 +48,12 @@ def watch(pid):
     if not pid in proc_io_list.keys():
         proc = ProcIO(pid)
         proc_io_list[pid] = proc
-        print 'watch %d' % pid
+        # print 'watch %d' % pid
 
 def unwatch(pid):
     if pid in proc_io_list.keys():
         del proc_io_list[pid]
-        print 'unwatch %d' % pid
+        # print 'unwatch %d' % pid
 
 def disk(pid):
     if pid in proc_io_list.keys():

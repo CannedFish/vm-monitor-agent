@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import web
 import json
+import logging
+
+LOG = logging.getLogger()
 
 import data_collector as dc
 
@@ -48,7 +51,8 @@ class watch_process:
                 'success': False,
                 'msg': str(e)
             }
-            print repr(e)
+            LOG.debug(repr(e))
+            # print repr(e)
         return json.dumps(ret)
 
 class unwatch_process:
@@ -65,7 +69,8 @@ class unwatch_process:
                 'success': False,
                 'msg': str(e)
             }
-            print repr(e)
+            LOG.debug(repr(e))
+            # print repr(e)
         return json.dumps(ret)
 
 class vm_status:
