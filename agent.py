@@ -1,39 +1,23 @@
 # -*- coding: utf-8 -*-
-from threading import Thread, Condition
 import time
 import psutil
 import logging
 
 LOG = logging.getLogger()
 
+from common import MyThread
 import data_collector as dc
 from config import settings
 fetcher = settings['fetcher']
 
-class Agent(Thread):
+class Agent(MyThread):
     def __init__(self, delay):
-        super(Agent, self).__init__()
-        self.threadID = 1
-        self.name = 'Agent'
+        super(Agent, self).__init__('Agent', 1)
         self._delay = delay
-        self._cond = Condition()
-        self._exit = False
-        self._pause = False
 
-    def run(self):
-        LOG.debug("%s-%d started" % (self.name, self.threadID))
-        # print "%s-%d started" % (self.name, self.threadID)
-        Agent.__run(self)
-
-    @staticmethod
-    def __run(ins):
-        while not ins.toExit:
-            ins.cond.acquire()
-            if ins.toPause:
-                ins.cond.wait()
-            ins.cond.release()
-            dc.update_proc_info(ins.fetch_proc_info())
-            time.sleep(ins.delay)
+    def work(self):
+        dc.update_proc_info(self.fetch_proc_info())
+        time.sleep(self._delay)
 
     def fetch_proc_info(self):
         data = []
@@ -51,36 +35,6 @@ class Agent(Thread):
     @property
     def delay(self):
         return self._delay
-
-    @property
-    def cond(self):
-        return self._cond
-
-    @property
-    def toExit(self):
-        return self._exit
-
-    @property
-    def toPause(self):
-        return self._pause
-
-    def stop(self):
-        self._exit = True
-        LOG.debug("%s-%d stoped" % (self.name, self.threadID))
-        # print "%s-%d stoped" % (self.name, self.threadID)
-
-    def pause(self):
-        self._pause = True
-        LOG.debug("%s-%d paused" % (self.name, self.threadID))
-        # print "%s-%d paused" % (self.name, self.threadID)
-
-    def resume(self):
-        self._pause = False
-        self._cond.acquire()
-        self._cond.notify()
-        self._cond.release()
-        LOG.debug("%s-%d resumed" % (self.name, self.threadID))
-        # print "%s-%d resumed" % (self.name, self.threadID)
 
 agent = Agent(3)
 

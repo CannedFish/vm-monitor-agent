@@ -171,6 +171,10 @@ class WatchQueue(Thread):
     def toExit(self):
         return self._exit
 
+    @property
+    def watched_pids(self):
+        return [proc.pid for proc in self._queue]
+
     def run(self):
         LOG.debug("%s-%d start" % (self.name, self.threadID))
         # print "%s-%d start" % (self.name, self.threadID)
@@ -311,6 +315,10 @@ def proc_unwatch(pids):
         wps.append(proc)
     wq.remove(wps)
     return True
+
+def proc_watched():
+    # return watched list
+    return wq.watched_pids
 
 def get_vm_status():
     return []

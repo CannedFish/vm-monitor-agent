@@ -18,6 +18,8 @@ def handler(signum, frame):
     agent.stop()
     wq.stop()
     wq.join()
+    if settings['report_type'] == 'metadata':
+        pass
     sys.exit(0)
 
 signal.signal(signal.SIGINT, handler)
@@ -27,6 +29,8 @@ signal.signal(signal.SIGTERM, handler)
 # start agent
 agent.start()
 wq.start()
+if settings['report_type'] == 'metadata':
+    pass
 
 # start api server
 if __name__ == '__main__':

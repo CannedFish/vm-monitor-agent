@@ -18,7 +18,7 @@ for p in CONFIG_PATH:
     settings['net_interface'] = map(lambda x: x.strip(), \
             re.split(',', settings['net_interface']))
 
-# configure fetcher
+# configure platform specific
 import platform
 sysstr = platform.system()
 if sysstr == 'Linux':
@@ -33,14 +33,17 @@ elif sysstr == 'Windows':
 else:
     raise ValueError('Platform not support, only Linux and Windows')
 
+# configure fetcher
 settings['fetcher'] = fetcher
 
 # configure report server
 re = system(cmd % settings['metadata_server_ip'])
 if re:
     settings['report_server_ip'] = settings['host_server_ip']
+    settings['report_type'] = 'direct'
 else:
     settings['report_server_ip'] = settings['metadata_server_ip']
+    settings['report_type'] = 'metadata'
 
 # configure log
 import logging

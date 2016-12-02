@@ -105,6 +105,18 @@ def log_test():
     LOG.debug("Log start")
     LOG.debug("Log end")
 
+def metadata_checker_test():
+    from report_server_api import meta_checker as mc
+    
+    mc.start()
+    time.sleep(5)
+    mc.pause()
+    time.sleep(5)
+    mc.resume()
+    time.sleep(5)
+    mc.stop()
+    mc.join()
+
 if __name__ == '__main__':
     if sys.argv[1] == 'api':
         api_test()
@@ -124,6 +136,8 @@ if __name__ == '__main__':
 		wmi_test()
     elif sys.argv[1] == 'log':
         log_test()
+    elif sys.argv[1] == 'meta':
+        metadata_checker_test()
     else:
         print "bad argument"
         sys.exit(1)
