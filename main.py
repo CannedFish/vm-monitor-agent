@@ -3,6 +3,7 @@ import api_server
 import agent
 from data_collector import wq
 from config import settings
+from report_server_api import meta_checker as mc
 
 import sys
 import logging
@@ -19,7 +20,8 @@ def handler(signum, frame):
     wq.stop()
     wq.join()
     if settings['report_type'] == 'metadata':
-        pass
+        mc.stop()
+        mc.join()
     sys.exit(0)
 
 signal.signal(signal.SIGINT, handler)
@@ -30,7 +32,7 @@ signal.signal(signal.SIGTERM, handler)
 agent.start()
 wq.start()
 if settings['report_type'] == 'metadata':
-    pass
+    mc.start()
 
 # start api server
 if __name__ == '__main__':
