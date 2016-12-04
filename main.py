@@ -11,10 +11,7 @@ import signal
 
 LOG = logging.getLogger()
 
-# initialization
-sys.argv.append(settings['port'])
-
-def handler(signum, frame):
+def exit_handler(signum, frame):
     LOG.debug('Catched interrupt signal')
     agent.stop()
     wq.stop()
@@ -24,17 +21,24 @@ def handler(signum, frame):
         mc.join()
     sys.exit(0)
 
-signal.signal(signal.SIGINT, handler)
-signal.signal(signal.SIGHUP, handler)
-signal.signal(signal.SIGTERM, handler)
+def main():
+    # initialization
+    sys.argv.append(settings['port'])
 
-# start agent
-agent.start()
-wq.start()
-if settings['report_type'] == 'metadata':
-    mc.start()
+    signal.signal(signal.SIGINT, exit_handler)
+    signal.signal(signal.SIGHUP, exit_handler)
+    signal.signal(signal.SIGTERM, exit_handler)
 
-# start api server
+    # start agent
+    agent.start()
+    wq.start()
+    if settings['report_type'] == 'metadata':
+        mc.start()
+
+    # start api server
+    if settings['report_type'] == 'direct':
+        api_server.run()
+
 if __name__ == '__main__':
-    api_server.run()
+    main()
 
