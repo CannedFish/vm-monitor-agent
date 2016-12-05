@@ -32,6 +32,7 @@ elif sysstr == 'Windows':
     sys.setdefaultencoding('utf8')
 else:
     raise ValueError('Platform not support, only Linux and Windows')
+settings['platform'] = sysstr
 
 # configure fetcher
 settings['fetcher'] = fetcher
@@ -47,6 +48,8 @@ else:
 
 # configure log
 import logging
+from os import path, makedirs
+
 log_level = {
     'DEBUG': logging.DEBUG,
     'INFO': logging.INFO,
@@ -54,9 +57,13 @@ log_level = {
     'ERROR': logging.ERROR,
     'CRITICAL': logging.CRITICAL
 }
+
+log_dir = settings['log_file'].rpartition(settings['log_file'][settings['log_file'].rindex('/')])[0]
+if not path.exists(log_dir):
+    makedirs(log_dir)
+
 logging.basicConfig(level=log_level[settings['log_level']], \
         format='[%(asctime)s] %(filename)s[line:%(lineno)d]: %(message)s', \
         datefmt='%a, %d %b %Y %H:%M:%S', \
         filename=settings['log_file'], \
-        filemode='w')
-
+        filemode='a')

@@ -23,10 +23,9 @@ def exit_handler(signum, frame):
 
 def main():
     # initialization
-    sys.argv.append(settings['port'])
-
     signal.signal(signal.SIGINT, exit_handler)
-    signal.signal(signal.SIGHUP, exit_handler)
+    if settings['platform'] == 'Linux':
+        signal.signal(signal.SIGHUP, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
 
     # start agent
@@ -37,6 +36,8 @@ def main():
 
     # start api server
     if settings['report_type'] == 'direct':
+        sys.argv.append(settings['port'])
+        sys.argv[1] = settings['port']
         api_server.run()
 
 if __name__ == '__main__':

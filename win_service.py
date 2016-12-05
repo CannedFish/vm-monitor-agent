@@ -1,4 +1,4 @@
-# -*- coding: udf-8 -*-
+# -*- coding: utf-8 -*-
 import win32serviceutil
 import win32service
 import win32event
@@ -35,17 +35,21 @@ class ProcInfoService(win32serviceutil.ServiceFramework):
     _svc_description_ = "Process information collect service"
 
     def __init__(self, args):
-        super(ProcInfoService, win32serviceutil.ServiceFramework)\
+        win32serviceutil.ServiceFramework\
                 .__init__(self, args)
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
         self.isAlive = True
 
     def SvcDoRun(self):
-        LOG.info("Service start...")
+        import time
+        LOG.debug("Service start...")
         main.main()
 
     def SvcStop(self):
-        LOG.info("Service stop...")
+        LOG.debug("Service stop...")
+        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
+        win32event.SetEvent(self.hWaitStop)
+        self.isAlive = False
         main.exit_handler(2, None)
 
 if __name__ == '__main__':
