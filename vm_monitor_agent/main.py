@@ -19,7 +19,7 @@ def exit_handler(signum, frame):
     if settings['report_type'] == 'metadata':
         mc.stop()
         mc.join()
-    sys.exit(0)
+    return 0
 
 def main():
     # initialization

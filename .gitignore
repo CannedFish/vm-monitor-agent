@@ -4,3 +4,6 @@
 *.pyo
 .venv/*
 **/log/*
+build/*
+dist/*
+vm_monitor_agent.egg-info/*

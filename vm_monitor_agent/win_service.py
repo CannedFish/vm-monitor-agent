@@ -52,6 +52,9 @@ class ProcInfoService(win32serviceutil.ServiceFramework):
         self.isAlive = False
         main.exit_handler(2, None)
 
-if __name__ == '__main__':
+def main():
     win32serviceutil.HandleCommandLine(ProcInfoService)
+
+if __name__ == '__main__':
+    main()
 

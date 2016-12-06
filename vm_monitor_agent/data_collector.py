@@ -21,6 +21,7 @@ class Process(object):
         self._pid = pid
         self._name = name
         self._start = start
+        self._stop = None
         self._last_update = start
         self._cpu = None
         self._mem = None
@@ -136,11 +137,12 @@ class Process(object):
                     created, running or deleted')
         if self._status in ('created','running') \
                 and val == 'deleted':
-            stop = time.time()
+            self._stop = time.time()
             if self._watched:
                 # send an event
+                api.send_report([self.complete()])
                 pass
-            LOG.debug(FMT(stop, 'Deleted', self._pid, self._name))
+            LOG.debug(FMT(self._stop, 'Deleted', self._pid, self._name))
         self._status = val
 
     def basic(self):
@@ -148,7 +150,8 @@ class Process(object):
 
     def complete(self):
         return (self._pid, self._name, self._cpu, \
-                self._mem, self._disk, self._net)
+                self._mem, self._disk, self._net, \
+                self._start, self._stop)
 
 class Procs(dict):
     def __setitem__(self, key, val):
@@ -156,6 +159,10 @@ class Procs(dict):
             raise ValueError('Bad value, must be an \
                     instance of Process')
         super(Procs, self).__setitem__(key, val)
+
+    @property
+    def alive_num(self):
+        return len(self.keys())
 
 class WatchQueue(Thread):
     def __init__(self, delay):

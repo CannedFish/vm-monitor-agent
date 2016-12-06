@@ -47,6 +47,13 @@ def send_report(data):
     # print "send report:\n%s" % data
     return True
 
+def send_vm_report(data):
+    s_data = {
+        'method': '116116',
+        'data': data,
+        'session_id': 'jkjauifgf-ddaa'
+    }
+
 # For metadata type
 from common import MyThread
 import time
@@ -66,6 +73,7 @@ class MetadataChecker(MyThread):
             LOG.debug(watch_list, watched)
             dc.proc_watch(filter(lambda x: x not in watched, watch_list))
             dc.proc_unwatch(filter(lambda x: x not in watch_list, watched))
+        # TODO: If use metadata server, send all alive proc's info in interal
         time.sleep(self._delay)
     
     def _check_watch_list(self):
