@@ -32,6 +32,10 @@ class Process(object):
         self._updated = True
         self._status = 'created' # ('created','running','deleted')
         LOG.debug(FMT(start, 'Created', pid, name))
+        fetcher.watch(self._pid)
+
+    def __del__(self):
+        fetcher.unwatch(self._pid)
 
     def __str__(self):
         return "(%d,%s,%f,%f,%s,%s)" % (self._pid, self._name, \
@@ -70,10 +74,7 @@ class Process(object):
     @cpu_per.setter
     def cpu_per(self, val):
         if val > 100 or val < 0:
-            if self._pid == 0:
-                val = round(val/10.0, 1)
-            else:
-                raise ValueError('Bad value, must between 0 and 100')
+            LOG.warning('CPU: %d is sent, must between 0 and 100' % val)
         self._cpu = val
         # alert if needed
 
@@ -84,7 +85,7 @@ class Process(object):
     @mem_per.setter
     def mem_per(self, val):
         if val > 100 or val < 0:
-            raise ValueError('Bad value, must between 0 and 100')
+            LOG.warning('CPU: %d is sent, must between 0 and 100' % val)
         self._mem = val
         # alert if needed
 
@@ -109,13 +110,11 @@ class Process(object):
     def watch(self):
         if not self._watched:
             self._watched = True
-            fetcher.watch(self._pid)
             LOG.debug(FMT(time.time(), 'Watched', self._pid, self._name))
 
     def unwatch(self):
         if self._watched:
             self._watched = False
-            fetcher.unwatch(self._pid)
             LOG.debug(FMT(time.time(), 'Unwatched', self._pid, self._name))
 
     @property
@@ -140,7 +139,7 @@ class Process(object):
             self._stop = time.time()
             if self._watched:
                 # send an event
-                api.send_report([self.complete()])
+                api.send_report([self.to_dict()], 'proc')
                 pass
             LOG.debug(FMT(self._stop, 'Deleted', self._pid, self._name))
         self._status = val
@@ -153,6 +152,20 @@ class Process(object):
                 self._mem, self._disk, self._net, \
                 self._start, self._stop)
 
+    def to_dict(self):
+        return {
+            'pid': self._pid,
+            'cmd': self._name,
+            'cpu_util': self._cpu,
+            'mem': self._mem,
+            'disk_read': self._disk[0],
+            'disk_write': self._disk[1],
+            'running_time': self._start,
+            'shutdown_time': self._stop,
+            'net_incoming': self._net[0],
+            'net_outgoing': self._net[1]
+        }
+
 class Procs(dict):
     def __setitem__(self, key, val):
         if not isinstance(val, Process):
@@ -162,7 +175,7 @@ class Procs(dict):
 
     @property
     def alive_num(self):
-        return len(self.keys())
+        return len(filter(lambda x: self[x].status != 'deleted', self.keys()))
 
 class WatchQueue(Thread):
     def __init__(self, delay):
@@ -184,7 +197,6 @@ class WatchQueue(Thread):
 
     def run(self):
         LOG.debug("%s-%d start" % (self.name, self.threadID))
-        # print "%s-%d start" % (self.name, self.threadID)
         WatchQueue.__run(self, self._queue, self._delay, self._cond)
 
     @staticmethod
@@ -194,11 +206,10 @@ class WatchQueue(Thread):
             if len(queue) == 0:
                 # hang this thread
                 LOG.debug("Watch queue is hanged")
-                # print "Watch queue is hanged"
                 cond.wait()
             cond.release()
             # send information
-            api.send_report([proc.complete() for proc in queue])
+            api.send_report([proc.to_dict() for proc in queue], 'proc')
             time.sleep(delay)
         LOG.debug("%s-%d stoped" % (ins.name, ins.threadID))
 
@@ -213,7 +224,6 @@ class WatchQueue(Thread):
             # notify the hanged thread
             self._cond.notify()
             LOG.debug("Watch queue is actived")
-            # print "Watch queue is actived"
         self._cond.release()
         
     def remove(self, procs):
@@ -233,7 +243,8 @@ class WatchQueue(Thread):
             self._cond.release()
 
 class VM(object):
-    def __init__(self):
+    def __init__(self, procs):
+        self._procs = procs
         self._cpu = None
         self._mem = None
         self._disk = None
@@ -245,8 +256,8 @@ class VM(object):
 
     @cpu_per.setter
     def cpu_per(self, val):
-        if val > 1 or val < 0:
-            raise ValueError('Bad value, must between 0 and 1')
+        if val > 100 or val < 0:
+            raise ValueError('%d is send, must between 0 and 100' % val)
         self._cpu = val
         # alert if needed
 
@@ -256,36 +267,43 @@ class VM(object):
 
     @mem_per.setter
     def mem_per(self, val):
-        if val > 1 or val < 0:
-            raise ValueError('Bad value, must between 0 and 1')
+        if val > 100 or val < 0:
+            raise ValueError('%d is send, must between 0 and 100' % val)
         self._mem = val
         # alert if needed
 
     @property
-    def disk_per(self):
+    def disk_io(self):
         return self._disk
 
-    @disk_per.setter
-    def disk_per(self, val):
-        if val > 1 or val < 0:
-            raise ValueError('Bad value, must between 0 and 1')
+    @disk_io.setter
+    def disk_io(self, val):
         self._disk = val
         # alert if needed
 
     @property
-    def net_per(self):
+    def net_io(self):
         return self._net
 
-    @net_per.setter
-    def net_per(self, val):
-        if val > 1 or val < 0:
-            raise ValueError('Bad value, must between 0 and 1')
+    @net_io.setter
+    def net_io(self, val):
         self._net = val
         # alert if needed
 
+    def to_dict(self):
+        return {
+            'cpu_util': self._cpu,
+            'mem': self._mem,
+            'disk_read': self._disk[0],
+            'disk_write': self._disk[1],
+            'proc': self._procs.alive_num(),
+            'net_incoming': self._net[0],
+            'net_outgoing': self._net[1]
+        }
+
 # data store
 procs = Procs()
-vm = VM()
+vm = VM(procs)
 wq = WatchQueue(3)
 
 # data fetch api
@@ -297,10 +315,11 @@ def get_proc_list(mode):
             if proc.status in ('created', 'running'):
                 ret.append(proc.basic())
     elif mode == 1:
+        # TODO: append processes exited in this interval
         for pid in procs.keys():
             proc = procs[pid]
             if proc.status in ('created', 'running'):
-                ret.append(proc.complete())
+                ret.append(proc.to_dict())
     return ret
 
 def proc_watch(pids):
@@ -327,15 +346,14 @@ def proc_watched():
     # return watched list
     return wq.watched_pids
 
-def get_vm_status():
-    return []
-
 # data store api
 def update_proc_info(data):
     """
     param data: [(pid, cmd/name, start, %cpu, %mem, diskio, netio)]
     """
     pids = procs.keys()
+    # remove deleted prcesses
+    # TODO: put these exited processes' info in a cache
     for pid in pids:
         if procs[pid].status == 'deleted':
             del procs[pid]
@@ -364,14 +382,25 @@ def update_proc_info(data):
             d_procs.append(pid)
     if len(d_procs) > 0:
         proc_unwatch(d_procs)
-        # TODO: remove deleted prcesses
 
-def update_vm_basic(data):
-    pass
+def get_vm_status():
+    return {}
 
-def update_vm_disk(data):
-    pass
-
-def update_vm_net(data):
-    pass
+def update_vm_info(data):
+    """
+    e.g.
+    data = {
+        'cpu': cpu_percent,
+        'mem': mem_percent,
+        'disk': (read_bytes, write_bytes)
+        'net': (bytes_receive, bytes_sent)
+    }
+    """
+    try:
+        vm.cpu_per = data['cpu']
+        vm.men_per = data['mem']
+        vm.disk_io = data['disk']
+        vm.net_io = data['net']
+    except ValueError, e:
+        LOG.warning(e)
 

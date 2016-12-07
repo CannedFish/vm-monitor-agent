@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+# Thread model
 from threading import Thread, Condition
 import logging
 
@@ -48,4 +50,52 @@ class MyThread(Thread):
         self._cond.notify()
         self._cond.release()
         LOG.debug("%s-%d resumed" % (self.name, self.threadID))
+
+# HTTP client
+import requests
+import json
+
+def do_get(url):
+    try:
+        re = requests.get(url, timeout=2)
+        ret = {
+            'success': True,
+            'status': re.status_code,
+            'data': re.json()
+        }
+    except ValueError, e:
+        ret = {
+            'success': True,
+            'status': re.status_code,
+            'data': re.text
+        }
+    except Exception, e:
+        ret = {
+            'success': False,
+            'data': e
+        }
+    return ret
+
+def do_post(url, data):
+    try:
+        re = requests.post(url, data=json.dumps(data), timeout=2)
+        ret = {
+            'success': True,
+            'status': re.status_code
+        }
+    except Exception, e:
+        ret = {
+            'success': False,
+            'data': e
+        }
+    return ret
+
+# percent calc
+def calc_percent(old, now):
+    try:
+        r = (now[0]-old[0])/(now[2]-old[2])
+        w = (now[1]-old[1])/(now[2]-old[2])
+    except ZeroDivisionError, e:
+        r, w = now[0]-old[0], now[1]-old[1]
+    return r, w
 

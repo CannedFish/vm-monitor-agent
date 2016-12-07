@@ -117,6 +117,18 @@ def metadata_checker_test():
     mc.stop()
     mc.join()
 
+def reporter_test():
+    from report_server_api import reporter
+
+    reporter.start()
+    time.sleep(5)
+    reporter.pause()
+    time.sleep(5)
+    reporter.resume()
+    time.sleep(5)
+    reporter.stop()
+    reporter.join()
+
 if __name__ == '__main__':
     if sys.argv[1] == 'api':
         api_test()
@@ -138,6 +150,8 @@ if __name__ == '__main__':
         log_test()
     elif sys.argv[1] == 'meta':
         metadata_checker_test()
+    elif sys.argv[1] == 'report':
+        reporter_test()
     else:
         print "bad argument"
         sys.exit(1)

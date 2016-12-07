@@ -30,7 +30,7 @@ def main():
         license="BSD",
         packages=find_packages(),
         install_requires=REQs,
-        package_data={'vm_monitor_agent': ['etc/vma.conf']},
+        package_data={'': ['etc/vma.conf']},
         entry_points={
             'console_scripts': ENTRY
         }

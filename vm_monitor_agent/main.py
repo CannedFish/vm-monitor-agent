@@ -3,7 +3,10 @@ import api_server
 import agent
 from data_collector import wq
 from config import settings
-from report_server_api import meta_checker as mc
+from report_server_api import reporter
+
+if settings['cmd_way'] == 'meta_serv':
+    from report_server_api import meta_checker as mc
 
 import sys
 import logging
@@ -14,11 +17,17 @@ LOG = logging.getLogger()
 def exit_handler(signum, frame):
     LOG.debug('Catched interrupt signal')
     agent.stop()
-    wq.stop()
-    wq.join()
-    if settings['report_type'] == 'metadata':
+    
+    reporter.stop()
+    reporter.join()
+
+    if settings['cmd_way'] == 'meta_serv':
         mc.stop()
         mc.join()
+    
+    wq.stop()
+    wq.join()
+    
     return 0
 
 def main():
@@ -27,15 +36,16 @@ def main():
     if settings['platform'] == 'Linux':
         signal.signal(signal.SIGHUP, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
-
+    
     # start agent
     agent.start()
     wq.start()
-    if settings['report_type'] == 'metadata':
+    reporter.start()
+    if settings['cmd_way'] == 'meta_serv':
         mc.start()
 
     # start api server
-    if settings['report_type'] == 'direct':
+    if settings['cmd_way'] == 'rest':
         sys.argv.append(settings['port'])
         sys.argv[1] = settings['port']
         api_server.run()

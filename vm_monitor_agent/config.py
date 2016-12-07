@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
-from os import path, system
+from os import path
 
 CONFIG_PATH = ['etc/vma.conf', '/etc/vma.conf']
 
@@ -22,10 +22,8 @@ for p in CONFIG_PATH:
 import platform
 sysstr = platform.system()
 if sysstr == 'Linux':
-    cmd = 'ping -c 2 -w 1 %s'
     import fetcher_linux as fetcher
 elif sysstr == 'Windows':
-    cmd = 'ping -n 2 -w 1 %s'
     import fetcher_win as fetcher
     import sys
     reload(sys)
@@ -38,13 +36,24 @@ settings['platform'] = sysstr
 settings['fetcher'] = fetcher
 
 # configure report server
-re = system(cmd % settings['metadata_server_ip'])
-if re:
-    settings['report_server_ip'] = settings['host_server_ip']
-    settings['report_type'] = 'direct'
-else:
-    settings['report_server_ip'] = settings['metadata_server_ip']
-    settings['report_type'] = 'metadata'
+# get instance_id && reserv_id && report_delay from metadata server
+from common import do_get
+settings['host_server_ip'] = 'http://localhost:8086/wsgi_app.py'
+re = do_get(settings['metadata_server_ip'] + 'chargesystem_url/')
+if re['success']:
+    settings['host_server_ip'] = re['data']
+re = do_get(settings['metadata_server_ip'] + 'instance_id/')
+settings['instance_id'] = None
+if re['success']:
+    settings['instance_id'] = re['data']
+re = do_get(settings['metadata_server_ip'] + 'reserv_id/')
+settings['reserv_id'] = None
+if re['success']:
+    settings['reserv_id'] = re['data']
+re = do_get(settings['metadata_server_ip'] + 'poll_interval/')
+settings['report_interval'] = 3
+if re['success']:
+    settings['report_interval'] = re['data']
 
 # configure log
 import logging
@@ -67,3 +76,4 @@ logging.basicConfig(level=log_level[settings['log_level']], \
         datefmt='%a, %d %b %Y %H:%M:%S', \
         filename=settings['log_file'], \
         filemode='a')
+

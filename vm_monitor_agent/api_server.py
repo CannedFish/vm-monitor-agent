@@ -8,11 +8,18 @@ LOG = logging.getLogger()
 import data_collector as dc
 
 urls = (
+    '/api/cmd', 'cmd',
     '/api/proc/list/(\d)', 'pslist',
     '/api/proc/watch', 'watch_process',
     '/api/proc/unwatch', 'unwatch_process',
     '/api/vm/status', 'vm_status'
 )
+
+class cmd:
+    def POST(self):
+        data = web.input()
+        # TODO: handle commands
+        return data.data
 
 class pslist:
     def GET(self, mode):
