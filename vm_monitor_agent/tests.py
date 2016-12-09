@@ -4,22 +4,44 @@ import sys
 
 # api test
 def api_test():
-    r = requests.get('http://127.0.0.1:9999/api/proc/list/0')
-    print "proc list mode 0: \n%s" % r.json()
+    from config import settings
+    data = {\
+        'method': 'start_monitor',\
+        'reserv_id': settings['reserv_id']\
+    }
+    r = requests.post('http://127.0.0.1:%s/api/cmd' % settings['port'], \
+            data='data='+json.dumps(data))
 
-    r = requests.get('http://127.0.0.1:9999/api/proc/list/1')
-    print "proc list mode 1: \n%s" % r.json()
+    data = {
+        'method': 'start_monitor',
+        'reserv_id': 'abcde'
+    }
+    r = requests.post('http://127.0.0.1:%s/api/cmd' % settings['port'], \
+            data='data='+json.dumps(data))
 
-    data = [49, 50]
-    r = requests.post('http://127.0.0.1:9999/api/proc/watch', \
-            data='procs='+json.dumps(data))
-    print "proc watch: %s" % r.json()
-    time.sleep(20)
+    data = {
+        'method': 'start_monitor_123',
+        'reserv_id': settings['reserv_id']
+    }
+    r = requests.post('http://127.0.0.1:%s/api/cmd' % settings['port'], \
+            data='data='+json.dumps(data))
 
-    r = requests.post('http://127.0.0.1:9999/api/proc/unwatch', \
-            data='procs='+json.dumps(data))
-    print "proc watch: %s" % r.json()
+    # r = requests.get('http://127.0.0.1:9999/api/proc/list/0')
+    # print "proc list mode 0: \n%s" % r.json()
 
+    # r = requests.get('http://127.0.0.1:9999/api/proc/list/1')
+    # print "proc list mode 1: \n%s" % r.json()
+
+    # data = [49, 50]
+    # r = requests.post('http://127.0.0.1:9999/api/proc/watch', \
+            # data='procs='+json.dumps(data))
+    # print "proc watch: %s" % r.json()
+    # time.sleep(20)
+
+    # r = requests.post('http://127.0.0.1:9999/api/proc/unwatch', \
+            # data='procs='+json.dumps(data))
+    # print "proc watch: %s" % r.json()
+	
 # test data collection
 def data_collection_test():
     import data_collector as dc

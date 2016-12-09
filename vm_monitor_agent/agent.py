@@ -56,8 +56,8 @@ class Agent(MyThread):
         net = self._get_net_io()
         data = {
             'cpu': psutil.cpu_percent(),
-            'mem': psutil.virtual_memory().percent
-            'disk': calc_percent(self._disk, disk)
+            'mem': psutil.virtual_memory().percent,
+            'disk': calc_percent(self._disk, disk),
             'net': calc_percent(self._net, net)
         }
         self._disk = disk

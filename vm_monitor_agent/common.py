@@ -90,12 +90,21 @@ def do_post(url, data):
         }
     return ret
 
-# percent calc
+# percentage calculation
 def calc_percent(old, now):
     try:
         r = (now[0]-old[0])/(now[2]-old[2])
         w = (now[1]-old[1])/(now[2]-old[2])
     except ZeroDivisionError, e:
         r, w = now[0]-old[0], now[1]-old[1]
-    return r, w
+    return round(r, 1), round(w, 1)
+
+# random string
+import random
+def randstr():
+    base = 'abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    s = ''
+    for i in xrange(32):
+        s += random.choice(base)
+    return s
 

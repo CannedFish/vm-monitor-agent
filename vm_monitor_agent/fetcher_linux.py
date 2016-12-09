@@ -3,70 +3,76 @@
 import re
 import time
 from config import settings
+from common import calc_percent
 
 class ProcDiskNet(object):
     def __init__(self, pid):
         self._pid = pid
-        self._disk_fd = open('/proc/%d/io' % pid)
-        self._net_fd = open('/proc/%d/net/dev' % pid)
+        # self._disk_fd = open('/proc/%d/io' % pid)
+        # self._net_fd = open('/proc/%d/net/dev' % pid)
         self._d_read, self._d_write, self._d_time = self.__get_and_parse_disk()
         self._n_receive, self._n_transmit, self._n_time = self.__get_and_parse_net()
         # print "watch %d" % self._pid
 
-    def __del__(self):
+    # def __del__(self):
         # print "unwatch %d" % self._pid
-        self._disk_fd.close()
-        self._net_fd.close()
+        # self._disk_fd.close()
+        # self._net_fd.close()
 
     def __get_and_parse_disk(self):
         data = {}
         t = time.time()
-        for line in self._disk_fd:
-            l = re.split(':', line)
-            data[l[0]] = int(l[1])
-        self._disk_fd.seek(0)
-        # print data
+        try:
+            with open('/proc/%d/io' % self._pid) as fd:
+                for line in fd:
+                    l = re.split(':', line)
+                    data[l[0]] = int(l[1])
+            # self._disk_fd.seek(0)
+        except IOError, e:
+            return (self._d_read, self._d_write, self._d_time) \
+                    if hasattr(self, '_d_read') else (0, 0, t)
         return data['rchar'], data['wchar'], t
 
     def __get_and_parse_net(self):
         data = {}
         t = time.time()
-        for line in self._net_fd:
-            if ':' in line:
-                l = re.split(':', line)
-                data[l[0].strip()] = map(int, filter(lambda x: x!="", \
-                        re.split('\s+', l[1])))
-        self._net_fd.seek(0)
+        try:
+            with open('/proc/%d/net/dev' % self._pid) as fd:
+                for line in fd:
+                    if ':' in line:
+                        l = re.split(':', line)
+                        data[l[0].strip()] = map(int, filter(lambda x: x!="", \
+                                re.split('\s+', l[1])))
+            # self._net_fd.seek(0)
+        except IOError, e:
+            return (self._n_receive, self._n_transmit, self._n_time) \
+                    if hasattr(self, '_n_receive') else (0, 0, t)
         rx, tx = 0, 0
         keys = data.keys()
         for eth in settings['net_interface']:
             if eth in keys:
                 rx += data[eth][0]
                 tx += data[eth][8]
-        # print data
         return rx, tx, t
 
     @property
     def disk(self):
         d_read, d_write, d_time = self.__get_and_parse_disk()
-        # bytes per second
-        r_read = (d_read-self._d_read)/(d_time-self._d_time)
-        # bytes per second
-        r_write = (d_write-self._d_write)/(d_time-self._d_time)
+        r_read, r_write = calc_percent((self._d_read, self._d_write, self._d_time), \
+                (d_read, d_write, d_time))
         self._d_read, self._d_write, self._d_time = \
                 d_read, d_write, d_time
-        return round(r_read, 1), round(r_write, 1)
+        return r_read, r_write
 
     @property
     def net(self):
         n_receive, n_transmit, n_time = self.__get_and_parse_net()
-        # bytes per second
-        r_read = (n_receive-self._n_receive)/(n_time-self._n_time)
-        # bytes per second
-        r_write = (n_transmit-self._n_transmit)/(n_time-self._n_time)
+        r_read, r_write = calc_percent(\
+                (self._n_receive, self._n_transmit, self._n_time), \
+                (n_receive, n_transmit, n_time))
         self._n_receive, self._n_transmit, self._n_time = \
                 n_receive, n_transmit, n_time
-        return round(r_read, 1), round(r_write, 1)
+        return r_read, r_write
 
 watchedprocs = {}
 

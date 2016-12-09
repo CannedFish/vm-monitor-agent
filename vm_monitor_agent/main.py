@@ -28,7 +28,7 @@ def exit_handler(signum, frame):
     wq.stop()
     wq.join()
     
-    return 0
+    sys.exit(0)
 
 def main():
     # initialization

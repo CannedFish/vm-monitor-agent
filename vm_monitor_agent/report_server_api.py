@@ -35,7 +35,9 @@ def send_report(data, mode):
     # if not re['success']:
         # return do_post(settings['host_server_ip'], s_data)
     # return re
-    LOG.debug("send %s report:\n%s" % (mode, s_data))
+    LOG.debug("send %s report" % mode)
+    if mode == 'vm':
+        LOG.debug(s_data)
     return True
 
 # For metadata type

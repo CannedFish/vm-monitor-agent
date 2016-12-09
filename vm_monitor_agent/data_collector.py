@@ -245,10 +245,10 @@ class WatchQueue(Thread):
 class VM(object):
     def __init__(self, procs):
         self._procs = procs
-        self._cpu = None
-        self._mem = None
-        self._disk = None
-        self._net = None
+        self._cpu = 0
+        self._mem = 0
+        self._disk = (0, 0)
+        self._net = (0, 0)
 
     @property
     def cpu_per(self):
@@ -296,7 +296,7 @@ class VM(object):
             'mem': self._mem,
             'disk_read': self._disk[0],
             'disk_write': self._disk[1],
-            'proc': self._procs.alive_num(),
+            'proc': self._procs.alive_num,
             'net_incoming': self._net[0],
             'net_outgoing': self._net[1]
         }
@@ -384,7 +384,7 @@ def update_proc_info(data):
         proc_unwatch(d_procs)
 
 def get_vm_status():
-    return {}
+    return vm.to_dict()
 
 def update_vm_info(data):
     """
@@ -398,7 +398,7 @@ def update_vm_info(data):
     """
     try:
         vm.cpu_per = data['cpu']
-        vm.men_per = data['mem']
+        vm.mem_per = data['mem']
         vm.disk_io = data['disk']
         vm.net_io = data['net']
     except ValueError, e:

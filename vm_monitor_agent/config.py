@@ -47,7 +47,7 @@ settings['instance_id'] = None
 if re['success']:
     settings['instance_id'] = re['data']
 re = do_get(settings['metadata_server_ip'] + 'reserv_id/')
-settings['reserv_id'] = None
+settings['reserv_id'] = 'MWRiOqvtztyRFSVIqFzTgNreIhkRFnUb'
 if re['success']:
     settings['reserv_id'] = re['data']
 re = do_get(settings['metadata_server_ip'] + 'poll_interval/')

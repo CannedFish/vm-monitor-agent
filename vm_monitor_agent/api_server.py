@@ -6,20 +6,31 @@ import logging
 LOG = logging.getLogger()
 
 import data_collector as dc
+from config import settings
 
 urls = (
     '/api/cmd', 'cmd',
-    '/api/proc/list/(\d)', 'pslist',
-    '/api/proc/watch', 'watch_process',
-    '/api/proc/unwatch', 'unwatch_process',
-    '/api/vm/status', 'vm_status'
+    # '/api/proc/list/(\d)', 'pslist',
+    # '/api/proc/watch', 'watch_process',
+    # '/api/proc/unwatch', 'unwatch_process',
+    # '/api/vm/status', 'vm_status'
 )
+
+CMD = {
+    'start_monitor': dc.proc_watch
+}
 
 class cmd:
     def POST(self):
-        data = web.input()
-        # TODO: handle commands
-        return data.data
+        data = json.loads(web.input().data)
+        try:
+            if settings['reserv_id'] == data['reserv_id']:
+                CMD[data['method']]([])
+                return web.ok()
+            else:
+                return web.forbidden("Bad reserv_id")
+        except KeyError, e:
+            return web.notfound("No such method: %s" % data['method'])
 
 class pslist:
     def GET(self, mode):
