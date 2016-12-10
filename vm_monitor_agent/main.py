@@ -28,14 +28,18 @@ def exit_handler(signum, frame):
     wq.stop()
     wq.join()
     
-    sys.exit(0)
+    if settings['platform'] == 'Linux':
+        sys.exit(0)
 
 def main():
     # initialization
-    signal.signal(signal.SIGINT, exit_handler)
-    if settings['platform'] == 'Linux':
-        signal.signal(signal.SIGHUP, exit_handler)
-    signal.signal(signal.SIGTERM, exit_handler)
+    try:
+        signal.signal(signal.SIGINT, exit_handler)
+        if settings['platform'] == 'Linux':
+            signal.signal(signal.SIGHUP, exit_handler)
+        signal.signal(signal.SIGTERM, exit_handler)
+    except ValueError, e:
+        LOG.warning(e)
     
     # start agent
     agent.start()

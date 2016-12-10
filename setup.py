@@ -14,7 +14,7 @@ if SYSTEM == 'Linux':
     ENTRY = ['vm_agent = vm_monitor_agent.main:main',]
 elif SYSTEM == 'Windows':
     REQs.append('pypiwin32==219')
-    ENTRY = ['proc_info_service = vm_monitor_agent.win_service:main',]
+    ENTRY = ['proc_info_service = vm_monitor_agent.win_service:win_main',]
 else:
     raise ValueError("We are not support %s now." % SYSTEM)
 

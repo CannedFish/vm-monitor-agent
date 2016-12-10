@@ -33,7 +33,7 @@ class ProcIO(object):
             pinfo = proc.as_dict(ad_value='')
         except psutil.NoSuchProcess as err:
             unwatch(self._pid)
-            return self._io
+            return self._io if hasattr(self, '_io') else (0, 0)
 
         iostat = pinfo['io_counters']
         data = {}
