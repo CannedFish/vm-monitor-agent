@@ -11,7 +11,7 @@ LOG = logging.getLogger()
 
 class ProcInfoService(win32serviceutil.ServiceFramework):
     """ 
-    Usage: 'PythonService.py [options] install|update|remove|start [...]|stop|restart [...]|debug [...]' 
+    Usage: 'CMD [options] install|update|remove|start [...]|stop|restart [...]|debug [...]' 
     Options for 'install' and 'update' commands only: 
      --username domain\username : The Username the service is to
        run under 

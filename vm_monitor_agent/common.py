@@ -63,17 +63,20 @@ def do_get(url):
             'status': re.status_code,
             'data': re.json()
         }
+        LOG.debug("GET %s" % url)
     except ValueError, e:
         ret = {
             'success': True,
             'status': re.status_code,
             'data': re.text
         }
+        LOG.debug("GET %s: %s" % (url, e))
     except Exception, e:
         ret = {
             'success': False,
             'data': e
         }
+        LOG.debug("GET %s: %s" % (url, e))
     return ret
 
 def do_post(url, data):
@@ -83,11 +86,13 @@ def do_post(url, data):
             'success': True,
             'status': re.status_code
         }
+        LOG.debug("POST %s" % url)
     except Exception, e:
         ret = {
             'success': False,
             'data': e
         }
+        LOG.debug("POST %s: %s" % (url, e))
     return ret
 
 # percentage calculation

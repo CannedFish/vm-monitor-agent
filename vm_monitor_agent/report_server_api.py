@@ -31,13 +31,13 @@ def send_report(data, mode):
         'data': data,
         'session_id': '11111111'
     }
-    # re = do_post(settings['metadata_server_ip'], s_data)
-    # if not re['success']:
-        # return do_post(settings['host_server_ip'], s_data)
-    # return re
+    re = do_post(settings['metadata_server_ip'], s_data)
+    if not re['success']:
+        return do_post(settings['host_server_ip'], s_data)
+    return re
     LOG.debug("send %s report" % mode)
-    if mode == 'vm':
-        LOG.debug(s_data)
+    # if mode == 'vm':
+        # LOG.debug(s_data)
     return True
 
 # For metadata type
