@@ -17,7 +17,8 @@ urls = (
 )
 
 CMD = {
-    'start_monitor': dc.proc_watch
+    'start_monitor': dc.proc_watch,
+    'stop_monitor': dc.proc_unwatch
 }
 
 class cmd:

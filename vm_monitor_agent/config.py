@@ -42,11 +42,11 @@ settings['host_server_ip'] = 'http://localhost:8086/wsgi_app.py'
 re = do_get(settings['metadata_server_ip'] + 'chargesystem_url/')
 if re['success']:
     settings['host_server_ip'] = re['data']
-re = do_get(settings['metadata_server_ip'] + 'instance_id/')
+re = do_get(settings['metadata_server_ip'] + 'instance-id/')
 settings['instance_id'] = None
 if re['success']:
     settings['instance_id'] = re['data']
-re = do_get(settings['metadata_server_ip'] + 'reserv_id/')
+re = do_get(settings['metadata_server_ip'] + 'reserv-id/')
 settings['reserv_id'] = 'MWRiOqvtztyRFSVIqFzTgNreIhkRFnUb'
 if re['success']:
     settings['reserv_id'] = re['data']

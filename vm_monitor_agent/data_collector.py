@@ -304,7 +304,7 @@ class VM(object):
 # data store
 procs = Procs()
 vm = VM(procs)
-wq = WatchQueue(3)
+wq = WatchQueue(1)
 
 # data fetch api
 def get_proc_list(mode):
