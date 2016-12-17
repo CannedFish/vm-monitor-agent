@@ -142,6 +142,8 @@ class Process(object):
                 api.send_report([self.to_dict()], 'proc')
                 pass
             LOG.debug(FMT(self._stop, 'Deleted', self._pid, self._name))
+            LOG.info('%d %s %s-%s' % (self._pid, self._name, \
+                    self._start, self._stop))
         self._status = val
 
     def basic(self):
@@ -196,7 +198,7 @@ class WatchQueue(Thread):
         return [proc.pid for proc in self._queue]
 
     def run(self):
-        LOG.debug("%s-%d start" % (self.name, self.threadID))
+        LOG.info("%s-%d start" % (self.name, self.threadID))
         WatchQueue.__run(self, self._queue, self._delay, self._cond)
 
     @staticmethod
@@ -205,13 +207,13 @@ class WatchQueue(Thread):
             cond.acquire()
             if len(queue) == 0:
                 # hang this thread
-                LOG.debug("Watch queue is hanged")
+                LOG.info("Watch queue is hanged")
                 cond.wait()
             cond.release()
             # send information
             api.send_report([proc.to_dict() for proc in queue], 'proc')
             time.sleep(delay)
-        LOG.debug("%s-%d stoped" % (ins.name, ins.threadID))
+        LOG.info("%s-%d stoped" % (ins.name, ins.threadID))
 
     def add(self, procs):
         if not isinstance(procs, list):
@@ -223,7 +225,7 @@ class WatchQueue(Thread):
         if len(self._queue) == len(procs):
             # notify the hanged thread
             self._cond.notify()
-            LOG.debug("Watch queue is actived")
+            LOG.info("Watch queue is actived")
         self._cond.release()
         
     def remove(self, procs):

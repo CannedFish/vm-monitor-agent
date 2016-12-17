@@ -46,14 +46,15 @@ re = do_get(settings['metadata_server_ip'] + 'instance-id/')
 settings['instance_id'] = None
 if re['success']:
     settings['instance_id'] = re['data']
-re = do_get(settings['metadata_server_ip'] + 'reserv-id/')
+re = do_get(settings['metadata_server_ip'] + 'issued_token/')
 settings['reserv_id'] = 'MWRiOqvtztyRFSVIqFzTgNreIhkRFnUb'
 if re['success']:
     settings['reserv_id'] = re['data']
 re = do_get(settings['metadata_server_ip'] + 'poll_interval/')
-settings['report_interval'] = 3
+settings['report_interval'] = 10
 if re['success']:
     settings['report_interval'] = re['data']
+settings['rt_interval'] = int(settings['rt_interval'])
 
 # configure log
 import logging

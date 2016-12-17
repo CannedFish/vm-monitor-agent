@@ -26,6 +26,95 @@ def api_test():
     r = requests.post('http://127.0.0.1:%s/api/cmd' % settings['port'], \
             data='data='+json.dumps(data))
 
+    time.sleep(18)
+    data = {
+        'method': 'stop_monitor',
+        'reserv_id': settings['reserv_id']
+    }
+    r = requests.post('http://127.0.0.1:%s/api/cmd' % settings['port'], \
+            data='data='+json.dumps(data))
+
+    # r = requests.get('http://127.0.0.1:9999/api/proc/list/0')
+    # print "proc list mode 0: \n%s" % r.json()
+
+    # r = requests.get('http://127.0.0.1:9999/api/proc/list/1')
+    # print "proc list mode 1: \n%s" % r.json()
+
+    # data = [49, 50]
+    # r = requests.post('http://127.0.0.1:9999/api/proc/watch', \
+            # data='procs='+json.dumps(data))
+    # print "proc watch: %s" % r.json()
+    # time.sleep(20)
+
+    # r = requests.post('http://127.0.0.1:9999/api/proc/unwatch', \
+            # data='procs='+json.dumps(data))
+    # print "proc watch: %s" % r.json()
+	
+# test data collection
+def data_collection_test():
+    import data_collector as dc
+    
+    data = [(i, 'proc'+str(i), time.time(), 0.5, 0.5, 50, 50) for i in xrange(5)]
+    dc.update_proc_info(data)
+    print "basic:"
+    print dc.get_proc_list(0)
+    print "complete:"
+    print dc.get_proc_list(1)
+
+# test watch queue
+def watch_queue_test():
+    import data_collector as dc
+    
+    time.sleep(1)
+    print "\nempty queue"
+    time.sleep(3)
+    print "\nupdate proc info"
+    data = [(i, 'proc'+str(i), time.time(), 0.5, 0.5, 50, 50) \
+            for i in [1, 2, 3, 5]]
+    dc.update_proc_info(data)
+    time.sleep(2)
+    print "\nwatch all"
+    pids = [p[0] for p in data]
+    dc.proc_watch(pids)
+    time.sleep(16)
+    print "\nupdate proc info, again"
+    data = [(i, 'proc'+str(i), time.time(), 0.5, 0.5, 50, 50) \
+            for i in (5, 7, 8, 9)]
+    dc.update_proc_info(data)
+    print dc.get_proc_list(0)
+    dc.proc_watch([3, 5, 7])
+    time.sleep(8)
+    print "\nunwatch all"
+    dc.proc_unwatch([5, 7, 8, 9])
+
+def agent_test():
+    import agent
+    
+    agent.start()
+    time.sleep(5)
+    agent.pause()
+    time.sleep(5)
+    agent.resume()
+    time.sleep(5)
+    agent.stop()
+
+def agent_linux_test():
+    import fetcher_linux as fe
+    pid = 0
+    fe.watch(pid)
+    time.sleep(1)
+    print fe.disk(pid)
+    print fe.net(pid)
+    fe.unwatch(pid)
+    
+def agent_win_test():
+    import fetcher_win as fe
+    pid = 4
+    fe.watch(pid)
+    time.sleep(1)
+    print fe.disk(pid)
+    print fe.net(pid)
+
     # r = requests.get('http://127.0.0.1:9999/api/proc/list/0')
     # print "proc list mode 0: \n%s" % r.json()
 

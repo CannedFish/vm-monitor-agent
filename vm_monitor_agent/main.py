@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+from config import settings
 import api_server
 import agent
 from data_collector import wq
-from config import settings
 from report_server_api import reporter
 
 if settings['cmd_way'] == 'meta_serv':
@@ -28,8 +28,7 @@ def exit_handler(signum, frame):
     wq.stop()
     wq.join()
     
-    if settings['platform'] == 'Linux':
-        sys.exit(0)
+    sys.exit(0)
 
 def main():
     # initialization

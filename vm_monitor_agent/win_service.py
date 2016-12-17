@@ -42,11 +42,11 @@ class ProcInfoService(win32serviceutil.ServiceFramework):
 
     def SvcDoRun(self):
         import time
-        LOG.debug("Service start...")
+        LOG.info("Service start...")
         main.main()
 
     def SvcStop(self):
-        LOG.debug("Service stop...")
+        LOG.info("Service stop...")
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         win32event.SetEvent(self.hWaitStop)
         self.isAlive = False

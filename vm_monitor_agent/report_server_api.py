@@ -31,14 +31,12 @@ def send_report(data, mode):
         'data': data,
         'session_id': '11111111'
     }
+    LOG.debug("send %s report" % mode)
+    LOG.debug(s_data)
     re = do_post(settings['metadata_server_ip'], s_data)
     if not re['success']:
         return do_post(settings['host_server_ip'], s_data)
     return re
-    LOG.debug("send %s report" % mode)
-    # if mode == 'vm':
-        # LOG.debug(s_data)
-    return True
 
 # For metadata type
 from common import MyThread
@@ -73,9 +71,17 @@ if settings['cmd_way'] == 'meta_serv':
     meta_checker = MetadataChecker(3)
 
 class DataReport(MyThread):
-    def __init__(self, delay):
+    def __init__(self, rr_interval, rt_interval):
         super(DataReport, self).__init__('DataReport', 3)
-        self._delay = delay
+        self._delay = rr_interval
+        self._rr_interval = rr_interval
+        self._rt_interval = rt_interval
+
+    def watch(self):
+        self._delay = self._rt_interval
+
+    def unwatch(self):
+        self._delay = self._rr_interval
 
     def work(self):
         # If use metadata server, send all alive proc's info in interal
@@ -83,5 +89,6 @@ class DataReport(MyThread):
         send_report(dc.get_vm_status(), 'vm')
         time.sleep(self._delay)
 
-reporter = DataReport(settings['report_interval'])
+reporter = DataReport(settings['report_interval'], \
+        settings['rt_interval'])
 

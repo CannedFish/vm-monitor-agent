@@ -6,6 +6,8 @@ import logging
 LOG = logging.getLogger()
 
 import data_collector as dc
+import agent
+from report_server_api import reporter
 from config import settings
 
 urls = (
@@ -16,9 +18,17 @@ urls = (
     # '/api/vm/status', 'vm_status'
 )
 
+def start_monitor():
+    agent.watch()
+    reporter.watch()
+
+def stop_monitor():
+    agent.unwatch()
+    reporter.unwatch()
+
 CMD = {
-    'start_monitor': dc.proc_watch,
-    'stop_monitor': dc.proc_unwatch
+    'start_monitor': start_monitor,
+    'stop_monitor': stop_monitor
 }
 
 class cmd:
@@ -26,7 +36,7 @@ class cmd:
         data = json.loads(web.input().data)
         try:
             if settings['reserv_id'] == data['reserv_id']:
-                CMD[data['method']]([])
+                CMD[data['method']]()
                 return web.ok()
             else:
                 return web.forbidden("Bad reserv_id")

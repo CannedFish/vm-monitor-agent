@@ -16,7 +16,7 @@ class MyThread(Thread):
         self._pause = False
 
     def run(self):
-        LOG.debug("%s-%d started" % (self.name, self.threadID))
+        LOG.info("%s-%d started" % (self.name, self.threadID))
         while not self._exit:
             self._cond.acquire()
             if self._pause:
@@ -38,18 +38,18 @@ class MyThread(Thread):
 
     def stop(self):
         self._exit = True
-        LOG.debug("%s-%d stoped" % (self.name, self.threadID))
+        LOG.info("%s-%d stoped" % (self.name, self.threadID))
 
     def pause(self):
         self._pause = True
-        LOG.debug("%s-%d paused" % (self.name, self.threadID))
+        LOG.info("%s-%d paused" % (self.name, self.threadID))
 
     def resume(self):
         self._pause = False
         self._cond.acquire()
         self._cond.notify()
         self._cond.release()
-        LOG.debug("%s-%d resumed" % (self.name, self.threadID))
+        LOG.info("%s-%d resumed" % (self.name, self.threadID))
 
 # HTTP client
 import requests
@@ -63,20 +63,20 @@ def do_get(url):
             'status': re.status_code,
             'data': re.json()
         }
-        LOG.debug("GET %s" % url)
+        LOG.info("GET %s" % url)
     except ValueError, e:
         ret = {
             'success': True,
             'status': re.status_code,
             'data': re.text
         }
-        LOG.debug("GET %s: %s" % (url, e))
+        LOG.info("GET %s: %s" % (url, e))
     except Exception, e:
         ret = {
             'success': False,
             'data': e
         }
-        LOG.debug("GET %s: %s" % (url, e))
+        LOG.error("GET %s: %s" % (url, e))
     return ret
 
 def do_post(url, data):
@@ -86,13 +86,13 @@ def do_post(url, data):
             'success': True,
             'status': re.status_code
         }
-        LOG.debug("POST %s" % url)
+        LOG.info("POST %s" % url)
     except Exception, e:
         ret = {
             'success': False,
             'data': e
         }
-        LOG.debug("POST %s: %s" % (url, e))
+        LOG.error("POST %s: %s" % (url, e))
     return ret
 
 # percentage calculation

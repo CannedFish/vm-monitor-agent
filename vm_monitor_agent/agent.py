@@ -11,11 +11,19 @@ from config import settings
 fetcher = settings['fetcher']
 
 class Agent(MyThread):
-    def __init__(self, delay):
+    def __init__(self, rr_interval, rt_interval):
         super(Agent, self).__init__('Agent', 1)
-        self._delay = delay
+        self._delay = rr_interval
+        self._rr_interval = rr_interval
+        self._rt_interval = rt_interval
         self._disk = self._get_disk_io()
         self._net = self._get_net_io()
+
+    def watch(self):
+        self._delay = self._rt_interval
+
+    def unwatch(self):
+        self._delay = self._rr_interval
 
     def work(self):
         dc.update_proc_info(self.fetch_proc_info())
@@ -68,7 +76,7 @@ class Agent(MyThread):
     def delay(self):
         return self._delay
 
-agent = Agent(settings['report_interval'])
+agent = Agent(settings['report_interval'], settings['rt_interval'])
 
 def start():
     agent.start()
@@ -82,4 +90,10 @@ def pause():
 
 def resume():
     agent.resume()
+
+def watch():
+    agent.watch()
+
+def unwatch():
+    agent.unwatch()
 
