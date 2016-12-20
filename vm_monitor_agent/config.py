@@ -52,7 +52,7 @@ if re['success']:
     settings['reserv_id'] = re['data']
 re = do_get(settings['metadata_server_ip'] + 'poll_interval/')
 settings['report_interval'] = 10
-if re['success']:
+if re['success'] and isinstance(re['data'], (int, float)):
     settings['report_interval'] = re['data']
 settings['rt_interval'] = int(settings['rt_interval'])
 
