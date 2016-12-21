@@ -35,7 +35,7 @@ class cmd:
     def POST(self):
         data = json.loads(web.input().data)
         try:
-            if settings['reserv_id'] == data['reserv_id']:
+            if str(settings['reserv_id']) == str(data['reserv_id']):
                 CMD[data['method']]()
                 return web.ok()
             else:
