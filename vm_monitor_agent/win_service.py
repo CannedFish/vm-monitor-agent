@@ -16,8 +16,8 @@ class ProcInfoService(win32serviceutil.ServiceFramework):
      --username domain\username : The Username the service is to
        run under 
      --password password : The password for the username 
-     --startup [manual|auto|disabled|delayed] : How the service
-       starts, default = manual 
+     --startup=[manual|auto|disabled|delayed] : How the service
+       starts, default is manual 
      --interactive : Allow the service to interact with the desktop. 
      --perfmonini file: .ini file to use for registering performance
        monitor data 
