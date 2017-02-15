@@ -39,21 +39,21 @@ settings['fetcher'] = fetcher
 # get instance_id && reserv_id && report_delay from metadata server
 from common import do_get
 settings['host_server_ip'] = 'http://localhost:8086/wsgi_app.py'
-re = do_get(settings['metadata_server_ip'] + 'chargesystem_url/')
-if re['success']:
-    settings['host_server_ip'] = re['data']
-re = do_get(settings['metadata_server_ip'] + 'instance-id/')
+ret = do_get(settings['metadata_server_ip'] + 'chargesystem_url/')
+if ret['success']:
+    settings['host_server_ip'] = ret['data']
+ret = do_get(settings['metadata_server_ip'] + 'instance-id/')
 settings['instance_id'] = None
-if re['success']:
-    settings['instance_id'] = re['data']
-re = do_get(settings['metadata_server_ip'] + 'issued_token/')
+if ret['success']:
+    settings['instance_id'] = ret['data']
+ret = do_get(settings['metadata_server_ip'] + 'issued_token/')
 settings['reserv_id'] = 'MWRiOqvtztyRFSVIqFzTgNreIhkRFnUb'
-if re['success']:
-    settings['reserv_id'] = re['data']
-re = do_get(settings['metadata_server_ip'] + 'poll_interval/')
+if ret['success']:
+    settings['reserv_id'] = ret['data']
+ret = do_get(settings['metadata_server_ip'] + 'poll_interval/')
 settings['report_interval'] = 10
-if re['success'] and re.match('^[\d\.]+$', re['data']):
-    settings['report_interval'] = re['data']
+if ret['success'] and re.match('^[\d\.]+$', ret['data']):
+    settings['report_interval'] = ret['data']
 print settings['report_interval']
 settings['rt_interval'] = int(settings['rt_interval'])
 
