@@ -54,7 +54,7 @@ re = do_get(settings['metadata_server_ip'] + 'poll_interval/')
 settings['report_interval'] = 10
 if re['success'] and re.match('^[\d\.]+$', re['data']):
     settings['report_interval'] = re['data']
-print settings['report_intervaL']
+print settings['report_interval']
 settings['rt_interval'] = int(settings['rt_interval'])
 
 # configure log
