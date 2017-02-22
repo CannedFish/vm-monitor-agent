@@ -52,7 +52,7 @@ if ret['success']:
     settings['reserv_id'] = ret['data']
 ret = do_get(settings['metadata_server_ip'] + 'poll_interval/')
 settings['report_interval'] = 10
-if ret['success'] and re.match('^[\d\.]+$', ret['data']):
+if ret['success'] and re.match('^[\d\.]+$', str(ret['data'])):
     settings['report_interval'] = ret['data']
 print settings['report_interval']
 settings['rt_interval'] = int(settings['rt_interval'])
