@@ -21,7 +21,7 @@ else:
 def main():
     setup_args = dict(
         name="vm_monitor_agent",
-        version="0.5",
+        version="0.5.1",
         description="Process infomation collection",
         author="CannedFish Liang",
         author_email="lianggy0719@126.com",
