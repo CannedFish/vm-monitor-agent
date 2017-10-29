@@ -2,6 +2,7 @@
 *.swo
 *.pyc
 *.pyo
+*.un~
 .venv/*
 **/log/*
 build/*
