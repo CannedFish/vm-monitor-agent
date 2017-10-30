@@ -1,56 +1,44 @@
 # -*- coding: utf-8 -*-
 
-from settings import app_data_root
+from vm_monitor_agent import swift
+from db import DB
+from settings import dir_to_be_monitored
 
 from os import path
-import sqlite3
 import logging
 
 LOG = logging.getLogger(__name__)
 
 
-class _Message(object):
-    def __init__(self):
-        self.conn = sqlite3.connect(path.join(app_data_root, 'msgs.db'))
+class Message(object):
+    def __init__(self, msg_body):
+        self.container_id = msg_body['container_id']
+        self.object_id = msg_body['object_id']
+        self.username = msg_body['username']
+        self.password = msg_body['password']
+        self.auth_url = msg_body['auth_url']
+        self.tenant_name = msg_body['tenant_name']
+        self.token = msg_body['token']
 
-    def __del__(self):
-        self.conn.close()
+        self._msg = DB.msg(self.container_id, self.object_id)
+        self._info = DB.info(self.username, \
+                self.password, \
+                self.auth_url, \
+                self.tenant_name, \
+                self.token)
 
-    def new(self, body):
-        return __Message(body)
-    
-    class __Message(object):
-        def __init__(self, msg_body):
-            self.container_id = msg_body['container_id']
-            self.object_id = msg_body['object_id']
-            self.username = msg_body['username']
-            self.password = msg_body['password']
-            self.auth_url = msg_body['auth_url']
-            self.tenant_name = msg_body['tenant_name']
-            self.token = msg_body['token']
+    def save(self):
+        return self._msg.save()
 
-        def save(self):
-            try:
-                cur = self.conn.cursor()
-                cur.execute("INSERT INTO MESSAGES VALUES \
-                        (null,%s,%s,%s,%s,%s,%s,%s)" % (\
-                        self.container_id, \
-                        self.object_id, \
-                        self.username, \
-                        self.password, \
-                        self.auth_url, \
-                        self.tenant_name, \
-                        self.token))
-                self.conn.commit()
-
-                return True
-            except Exception, e:
-                LOG.error(e)
-                return False
-
-        def file_download(self):
-            # TODO:
-            return True
-
-Message = _Message()
+    def file_download(self):
+        ret = swift.get_object({
+            'user': self.username,
+            'key': self.password,
+            'auth_url': self.auth_url,
+            'tenant_name': self.tenant_name,
+            'container_name': self.container_id,
+            'object_name': self.object_id,
+            'with_data': 1
+        })
+        self._msg.update_local_path(path.join(dir_to_be_monitored, ret['name']))
 

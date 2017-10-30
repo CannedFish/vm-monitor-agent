@@ -10,6 +10,7 @@ exchange_name = "message_router"
 exchange_type = "topic"
 exchange_durable = True
 exchange_auto_delete = False
+
 queue_durable = False
 queue_auto_delete = False
 queue_exclusive = False
@@ -19,6 +20,12 @@ workOrderQueue = "VMS1.workOrderResourceAMQP"
 
 # Log
 log_file_path = '/var/log/msghandler.log'
+
+# Monitor Directory
+dir_to_be_monitored = path.join(environ['HOME'], 'clouddoc')
+
+# Auto uploader interval
+auto_upload_interval = 10
 
 # Name of this app
 from os import path, environ

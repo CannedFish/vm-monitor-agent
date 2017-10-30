@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from mqhandler import MQ_ReceiveService
+from auto_uploader import AutoUploader
 import settings
 
 import logging
@@ -19,6 +20,19 @@ logging.getLogger('').addHandler(console)
 LOG = logging.getLogger(__name__)
 
 def main():
+    if settings.SYSTEM == 'Linux':
+        from monitors.linux_monitor import LinuxDirMonitor as DirMonitor
+    elif settings.SYSTEM = 'Windows':
+        from monitors.win_monitor import WinDirMonitor as DirMonitor
+    else:
+        raise ValueError("We are not support %s now." % SYSTEM)
+
+    dir_monitor = DirMonitor(settings)
+    dir_monitor.start_monitor()
+
+    uploader = AutoUpload(dir_monitor, settings.auto_upload_interval)
+    uploader.start()
+
     WORKORDER_RABBITMQ_PROP = {
         "rabbitmq.host": settings.host,
         "rabbitmq.vhost": settings.vhost,
@@ -36,10 +50,10 @@ def main():
         "rabbitmq.prefetch_count": settings.prefetch_count,
         "rabbitmq.workOrderQueue": settings.workOrderQueue
     }
-    
+
     while True:
         try:
-            h = MQ_ReceiveService(WORKORDER_RABBITMQ_PROP, thread_pool_size)
+            h = MQ_ReceiveService(WORKORDER_RABBITMQ_PROP)
             h.receive_message()
         except Exception, e:
             LOG.error(e)

@@ -45,7 +45,7 @@ class MQ_Send_Service(object):
         channel.close()
 
 class MQ_ReceiveService(object):
-    def __init__(self, mqconfig, tp_size=4):
+    def __init__(self, mqconfig):
         self.mqconfig = mqconfig
         self.mqhost = mqconfig["rabbitmq.host"]
         self.mqVhost = mqconfig["rabbitmq.vhost"]
@@ -90,7 +90,7 @@ class MQ_ReceiveService(object):
 
             # Persistence
             LOG.info("Save received message to disk: %s." % msg)
-            msg = Message.new(body)
+            msg = Message(body)
             if not msg.save()
                 return ;
 
