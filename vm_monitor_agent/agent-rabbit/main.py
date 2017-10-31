@@ -4,6 +4,13 @@ from mqhandler import MQ_ReceiveService
 from auto_uploader import AutoUploader
 import settings
 
+if settings.SYSTEM == 'Linux':
+    from monitors.linux_monitor import LinuxDirMonitor as DirMonitor
+elif settings.SYSTEM = 'Windows':
+    from monitors.win_monitor import WinDirMonitor as DirMonitor
+else:
+    raise ValueError("We are not support %s now." % SYSTEM)
+
 import logging
 
 logging.basicConfig(level=logging.DEBUG, \
@@ -20,13 +27,6 @@ logging.getLogger('').addHandler(console)
 LOG = logging.getLogger(__name__)
 
 def main():
-    if settings.SYSTEM == 'Linux':
-        from monitors.linux_monitor import LinuxDirMonitor as DirMonitor
-    elif settings.SYSTEM = 'Windows':
-        from monitors.win_monitor import WinDirMonitor as DirMonitor
-    else:
-        raise ValueError("We are not support %s now." % SYSTEM)
-
     dir_monitor = DirMonitor(settings)
     dir_monitor.start_monitor()
 
