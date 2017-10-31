@@ -22,7 +22,7 @@ LOG = logging.getLogger(__name__)
 def main():
     if settings.SYSTEM == 'Linux':
         from monitors.linux_monitor import LinuxDirMonitor as DirMonitor
-    elif settings.SYSTEM = 'Windows':
+    elif settings.SYSTEM == 'Windows':
         from monitors.win_monitor import WinDirMonitor as DirMonitor
     else:
         raise ValueError("We are not support %s now." % SYSTEM)

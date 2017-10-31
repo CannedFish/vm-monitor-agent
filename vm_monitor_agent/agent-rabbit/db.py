@@ -53,7 +53,7 @@ class _DB(object):
         # Table: (usr, pwd, auth_url, tenant_name, token)
         update = False
         for key, value in zip(['usr', 'pwd', 'auth_url', 'tenant_name', 'token'], \
-                [usr, pwd, auth_url, tenant_name, token])
+                [usr, pwd, auth_url, tenant_name, token]):
             if value != self._info[key]:
                 self._info[key] = value
                 update = True
