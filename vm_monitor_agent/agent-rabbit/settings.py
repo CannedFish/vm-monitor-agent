@@ -19,10 +19,7 @@ prefetch_count = 32
 workOrderQueue = "VMS1.workOrderResourceAMQP"
 
 # Log
-log_file_path = '/var/log/msghandler.log'
-
-# Monitor Directory
-dir_to_be_monitored = path.join(environ['HOME'], 'clouddoc')
+log_file_path = '/var/log/agent-rabbit.log'
 
 # Auto uploader interval
 auto_upload_interval = 10
@@ -30,6 +27,9 @@ auto_upload_interval = 10
 # Name of this app
 from os import path, environ
 import platform
+
+# Monitor Directory
+dir_to_be_monitored = path.join(environ['HOME'], 'clouddoc')
 
 SYSTEM = platform.system()
 if SYSTEM == 'Linux':

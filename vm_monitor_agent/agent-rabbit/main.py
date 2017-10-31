@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from mqhandler import MQ_ReceiveService
+from msghandler import MQ_ReceiveService
 from auto_uploader import AutoUploader
 import settings
 
 import logging
 
-logging.basicConfig(level=logging.DEBUG, \
+logging.basicConfig(level=logging.INFO, \
         format='[%(asctime)s] %(name)-12s %(levelname)-8s %(message)s', \
         datefmt='%m-%d %H:%M', \
         filename=settings.log_file_path, \
         filemode='w')
 console = logging.StreamHandler()
-console.setLevel(logging.INFO)
+console.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
@@ -27,10 +27,10 @@ def main():
     else:
         raise ValueError("We are not support %s now." % SYSTEM)
 
-    dir_monitor = DirMonitor(settings)
+    dir_monitor = DirMonitor(settings.dir_to_be_monitored)
     dir_monitor.start_monitor()
 
-    uploader = AutoUpload(dir_monitor, settings.auto_upload_interval)
+    uploader = AutoUploader(dir_monitor, settings.auto_upload_interval)
     uploader.start()
 
     WORKORDER_RABBITMQ_PROP = {

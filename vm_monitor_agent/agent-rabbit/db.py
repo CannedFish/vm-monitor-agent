@@ -30,8 +30,9 @@ class _DB(object):
 
     def _init_info(self):
         try:
-            cur = self.conn.cursor()
+            cur = self._conn.cursor()
             ret = cur.execute("SELECT * FROM INFO")[0]
+            LOG.debug(ret)
             return {
                 'usr': ret[0],
                 'pwd': ret[1],
@@ -64,6 +65,8 @@ class _DB(object):
                 cur.execute("INSERT INTO INFO VALUES ('%s','%s','%s','%s','%s')" \
                         % (usr, pwd, auth_url, tenant_name, token))
                 self._conn.commit()
+            except Exception, e:
+                LOG.error(e)
 
     def get_info(self):
         return self._info

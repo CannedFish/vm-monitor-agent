@@ -9,7 +9,7 @@ from base_monitor import DirMonitor
 from os import path
 import logging
 
-LOG = logging.getLogger('__name__')
+LOG = logging.getLogger(__name__)
 
 class WinDirMonitor(DirMonitor):
 
