@@ -7,3 +7,4 @@
 build/*
 dist/*
 vm_monitor_agent.egg-info/*
+vm_monitor_agent/bin/*

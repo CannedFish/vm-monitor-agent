@@ -1,10 +1,21 @@
 # -*- coding: utf-8 -*-
 
 # Thread model
-from threading import Thread, Condition
+
 import logging
+import swiftclient
+# HTTP client
+import requests
+import json
+
+
+from threading import Thread, Condition
 
 LOG = logging.getLogger()
+
+
+
+
 
 class MyThread(Thread):
     def __init__(self, name, tid):
@@ -51,9 +62,6 @@ class MyThread(Thread):
         self._cond.release()
         LOG.info("%s-%d resumed" % (self.name, self.threadID))
 
-# HTTP client
-import requests
-import json
 
 def do_get(url):
     try:

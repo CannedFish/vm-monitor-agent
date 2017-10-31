@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
+import uuid
 from os import path
 
 CONFIG_PATH = ['etc/vma.conf', '/etc/vma.conf']
@@ -32,6 +33,18 @@ else:
     raise ValueError('Platform not support, only Linux and Windows')
 settings['platform'] = sysstr
 
+USER = "yes"
+KEY = "123"
+AUTH_URL = "http://192.168.1.89:5000/v2.0"
+PREAUTH_URL = 'http://192.168.1.7:7480/swift/v1'
+#PREAUTH_URL = 'http://192.168.1.7:5000/v2.0'
+TENANT_NAME = "yes"
+CONTAINER_NAME = "dongdong"
+UPDATE_CONTAINER_NAME = "update_config" + str(uuid.uuid4())
+OBJECT_NAME = "my-object"
+
+CONTAINER_NAME_2 = "config2"
+OBJECT_NAME_2 = "object2"
 # configure fetcher
 settings['fetcher'] = fetcher
 
