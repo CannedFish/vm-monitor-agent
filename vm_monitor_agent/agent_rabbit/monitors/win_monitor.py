@@ -9,7 +9,7 @@ from base_monitor import DirMonitor
 from os import path
 import logging
 
-LOG = logging.getLogger('__name__')
+LOG = logging.getLogger(__name__)
 
 class WinDirMonitor(DirMonitor):
 
@@ -53,9 +53,8 @@ class WinDirMonitor(DirMonitor):
             for action, filename in results:
                 full_filename = path.join(path_to_watch, filename)
                 # print full_filename, self.ACTIONS.get(action, "Unknown")
-                self._queue.append(full_filename) \
-                        if action == 3 \
-                        else continue
+                if action == 3: 
+                    self._queue.append(full_filename)
 
         @property
         def changed_files(self):

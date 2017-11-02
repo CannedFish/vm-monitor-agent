@@ -91,7 +91,7 @@ class MQ_ReceiveService(object):
             # Persistence
             LOG.info("Save received message to disk: %s." % msg)
             msg = Message(body)
-            if not msg.save()
+            if not msg.save():
                 return ;
 
             # Download file
