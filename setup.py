@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.join(HERE, 'vm_monitor_agent'))
 
 SYSTEM = platform.system()
 
-REQs = ['psutil==5.0.0', 'requests==2.11.1', 'web.py==0.38', 'pika==0.10.0']
+REQs = ['psutil==5.0.0', 'requests==2.11.1', 'web.py==0.38', 'pika==0.10.0', 'python-swiftclient==3.1.0']
 
 if SYSTEM == 'Linux':
     REQs.append('pyinotify==0.9.4')
