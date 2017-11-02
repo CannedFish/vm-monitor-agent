@@ -31,14 +31,20 @@ class Message(object):
         return self._msg.save()
 
     def file_download(self):
-        ret = swift.get_object({
-            'user': self.username,
-            'key': self.password,
-            'auth_url': self.auth_url,
-            'tenant_name': self.tenant_name,
-            'container_name': self.container_id,
-            'object_name': self.object_id,
-            'with_data': 1
-        })
-        self._msg.update_local_path(path.join(dir_to_be_monitored, ret['name']))
+        try:
+            ret = swift.get_object('', {
+                'user': self.username,
+                'key': self.password,
+                'auth_url': self.auth_url,
+                'tenant_name': self.tenant_name,
+                'container_name': self.container_id,
+                'object_name': self.object_id,
+                'with_data': 1
+            })
+            LOG.debug("Download return: %s" % ret)
+            self._msg.update_local_path(path.join(dir_to_be_monitored, ret['name']))
+            return True
+        except Exception, e:
+            LOG.error(e)
+            return False
 

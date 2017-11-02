@@ -9,6 +9,7 @@ import time
 import logging
 
 LOG = logging.getLogger(__name__)
+
 class AutoUploader(MyThread):
     def __init__(self, monitor, interval):
         super(AutoUploader, self).__init__('AutoUploader', 2)
@@ -18,9 +19,14 @@ class AutoUploader(MyThread):
     def work(self):
         try:
             q = self._monitor.get_changed_files()
+            LOG.info("check changed files: %s", q)
             if len(q) != 0:
                 for filepath in q:
-                    container_id, object_id = DB.get_ids_by_localpath(filepath)
+                    LOG.info("change file: %s", filepath)
+                    ret = DB.get_ids_by_localpath(filepath)
+                    if ret is None:
+                        LOG.warning("No record about this file: %s", filepath)
+                        continue
                     info = DB.get_info()
                     filename = path.basename(filepath)
                     swift.upload_object({
@@ -28,12 +34,13 @@ class AutoUploader(MyThread):
                         'key': info['pwd'],
                         'auth_url': info['auth_url'],
                         'tenant_name': info['tenant_name'],
-                        'container_name': container_id,
-                        'object_name': object_id,
+                        'container_name': ret[0],
+                        'object_name': ret[1],
                         'orig_file_name': filename
                     }, {
                         'upload_file': (filename, open(filepath, 'rb'))
                     })
+                    LOG.info("Auto uploaded file %s to %s/%s" % (filepath, ret[0], ret[1]))
             time.sleep(self._interval)
         except Exception, e:
             LOG.error(e)

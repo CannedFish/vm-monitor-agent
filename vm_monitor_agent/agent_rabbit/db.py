@@ -10,7 +10,8 @@ LOG = logging.getLogger(__name__)
 
 class _DB(object):
     def __init__(self):
-        self._conn = sqlite3.connect(path.join(app_data_root, 'msgs.db'))
+        self._conn = sqlite3.connect(path.join(app_data_root, 'msgs.db'), \
+            check_same_thread=False)
         self._info = self._init_info()
 
     def __del__(self):

@@ -90,12 +90,16 @@ class MQ_ReceiveService(object):
 
             # Persistence
             LOG.info("Save received message to disk: %s." % msg)
-            msg = Message(body)
-            if not msg.save():
+            msg_obj = Message(msg)
+            if not msg_obj.save():
+                LOG.warning("Save failed.")
                 return ;
 
             # Download file
-            msg.file_download()
+            LOG.info("Try to download %s/%s" % (msg['container_id'], msg['object_id']))
+            if not msg_obj.file_download():
+                LOG.warning("Download failed.")
+                return ;
 
         channel.basic_consume(callback, queue=self.msgQueue, no_ack=True)
         channel.start_consuming()

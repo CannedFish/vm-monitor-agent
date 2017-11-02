@@ -39,6 +39,6 @@ class LinuxDirMonitor(DirMonitor):
     def get_changed_files(self):
         q = [f for f in LinuxDirMonitor._queue]
         LinuxDirMonitor._queue = []
-        return q
+        return set(q)
 
 

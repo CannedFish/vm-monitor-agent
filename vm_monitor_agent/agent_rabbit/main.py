@@ -6,14 +6,14 @@ import settings
 
 if settings.SYSTEM == 'Linux':
     from monitors.linux_monitor import LinuxDirMonitor as DirMonitor
-elif settings.SYSTEM = 'Windows':
+elif settings.SYSTEM == 'Windows':
     from monitors.win_monitor import WinDirMonitor as DirMonitor
 else:
     raise ValueError("We are not support %s now." % SYSTEM)
 
 import logging
 
-logging.basicConfig(level=logging.INFO, \
+logging.basicConfig(level=logging.DEBUG, \
         format='[%(asctime)s] %(name)-12s %(levelname)-8s %(message)s', \
         datefmt='%m-%d %H:%M', \
         filename=settings.log_file_path, \
@@ -27,13 +27,6 @@ logging.getLogger('').addHandler(console)
 LOG = logging.getLogger(__name__)
 
 def main():
-    if settings.SYSTEM == 'Linux':
-        from monitors.linux_monitor import LinuxDirMonitor as DirMonitor
-    elif settings.SYSTEM == 'Windows':
-        from monitors.win_monitor import WinDirMonitor as DirMonitor
-    else:
-        raise ValueError("We are not support %s now." % SYSTEM)
-
     dir_monitor = DirMonitor(settings.dir_to_be_monitored)
     dir_monitor.start_monitor()
 
