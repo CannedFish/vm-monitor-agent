@@ -17,13 +17,13 @@ class _DB(object):
         self._conn.close()
 
     def msg(self, container_id, object_id):
-        return __MSG(container_id, object_id, self._conn)
+        return _DB.__MSG(container_id, object_id, self._conn)
 
     def get_ids_by_localpath(self, local_path):
         try:
             cur = self._conn.cursor()
             ret = cur.execute("SELECT container_id, object_id \
-                    FROM MESSAGES WHERE local_path='%'" % local_path)
+                    FROM MESSAGES WHERE local_path='%s'" % local_path)
             return ret.fetchone()
         except Exception, e:
             LOG.error(e)
@@ -31,7 +31,7 @@ class _DB(object):
     def _init_info(self):
         try:
             cur = self._conn.cursor()
-            ret = cur.execute("SELECT * FROM INFO")[0]
+            ret = cur.execute("SELECT usr,pwd,auth_url,tenant_name,token FROM INFO").fetchone()
             LOG.debug(ret)
             return {
                 'usr': ret[0],
@@ -41,6 +41,7 @@ class _DB(object):
                 'token': ret[4]
             }
         except Exception, e:
+            print "_init_info:", e
             LOG.error(e)
             return {
                 'usr': '',
@@ -61,11 +62,12 @@ class _DB(object):
         if update:
             try:
                 cur = self._conn.cursor()
-                cur.execute("DELETE * from INFO")
+                cur.execute("DELETE FROM INFO")
                 cur.execute("INSERT INTO INFO VALUES ('%s','%s','%s','%s','%s')" \
                         % (usr, pwd, auth_url, tenant_name, token))
                 self._conn.commit()
             except Exception, e:
+                print "info:", e
                 LOG.error(e)
 
     def get_info(self):
@@ -82,14 +84,15 @@ class _DB(object):
             try:
                 # Table: (id, container_id, object_id, timestramp, local_path)
                 cur = self._conn.cursor()
-                cur.execute("INSERT INTO MESSAGES VALUES \
-                        (null,'%s','%s',null,'%s')" % (\
+                cur.execute("INSERT INTO MESSAGES (container_id,object_id,local_path) \
+                        VALUES ('%s','%s','%s')" % (\
                         self._container_id, \
                         self._object_id, \
                         self._local_path))
-                self.conn.commit()
+                self._conn.commit()
                 return True
             except Exception, e:
+                print "save:", e
                 LOG.error(e)
                 return False
 
@@ -101,8 +104,11 @@ class _DB(object):
                         where container_id='%s' and object_id='%s'" \
                         % (local_path, self._container_id, self._object_id))
                 self._conn.commit()
+                return True
             except Exception, e:
+                print "update_local_path:", e
                 LOG.error(e)
+                return False
 
 DB = _DB()
 
