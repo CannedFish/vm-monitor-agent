@@ -9,8 +9,8 @@ import pika
 import json
 
 # sys.path.append('/var/www/msghandler')
-from msghandler import settings
-from msghandler.mqhandler import MQ_Send_Service
+from vm_monitor_agent.agent_rabbit import settings
+from vm_monitor_agent.agent_rabbit.msghandler import MQ_Send_Service
 
 logging.basicConfig(level=logging.DEBUG,
         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
@@ -31,25 +31,46 @@ def main():
     # parser.add_option('-f', '--file', dest='filename', \
             # help="Give message sample file", metavar='FILE')
     options, args = parser.parse_args()
-    if len(args) < 1:
-        print "Usage: test_send_msg $msg_file_path"
-        sys.exit(1)
-    filepath = args[0]
-
-    LOG.info(json.dumps(settings.WORKORDER_RABBITMQ_PROP))
-
-    # send message
-    mq_sender = MQ_Send_Service(settings.WORKORDER_RABBITMQ_PROP)
-    with open(filepath, 'r') as fd:
-        info = json.loads(fd.read())
-        mq_sender.send_message(json.dumps(info))
-        LOG.info("send msg %s", info)
-        print "finish send mq"
-
-if __name__ == '__main__':
-    # if len(sys.argv) < 2:
+    # if len(args) < 1:
         # print "Usage: test_send_msg $msg_file_path"
         # sys.exit(1)
+    # filepath = args[0]
 
+    WORKORDER_RABBITMQ_PROP = {
+        "rabbitmq.host": settings.host,
+        "rabbitmq.vhost": settings.vhost,
+        "rabbitmq.username": settings.username,
+        "rabbitmq.password": settings.password,
+        "rabbitmq.port": settings.port,
+        "rabbitmq.exchange_name": settings.exchange_name,
+        "rabbitmq.exchange_type": settings.exchange_type,
+        "rabbitmq.exchange_durable": settings.exchange_durable,
+        "rabbitmq.exchange_auto_delete": settings.exchange_auto_delete,
+        "rabbitmq.queue_durable": settings.queue_durable,
+        "rabbitmq.queue_auto_delete": settings.queue_auto_delete,
+        "rabbitmq.queue_exclusive": settings.queue_exclusive,
+        "rabbitmq.routing_key": settings.routing_key,
+        "rabbitmq.prefetch_count": settings.prefetch_count,
+        "rabbitmq.workOrderQueue": settings.workOrderQueue
+    }
+
+    LOG.info(json.dumps(WORKORDER_RABBITMQ_PROP))
+
+    # send message
+    mq_sender = MQ_Send_Service(WORKORDER_RABBITMQ_PROP)
+    info = {
+        "container_id": "6ee5eb33efad4e45ab46806eac010566",
+        "object_id": "abcdef0123456789abcdef0123456789",
+        "username": "username",
+        "password": "password",
+        "auth_url": "http://192.168.1.48:5000/v2.0",
+        "tenant_name": "tenant",
+        "token": "6677ddef0123456789abcdef0123456789"
+    }
+    mq_sender.send_message(json.dumps(info))
+    LOG.info("send msg %s", info)
+    print "finish send mq"
+
+if __name__ == '__main__':
     main()
 

@@ -12,22 +12,22 @@ import sys
 import logging
 import signal
 
-LOG = logging.getLogger()
+LOG = logging.getLogger(__name__)
 
 def exit_handler(signum, frame):
     LOG.debug('Catched interrupt signal')
     agent.stop()
-    
+
     reporter.stop()
     reporter.join()
 
     if settings['cmd_way'] == 'meta_serv':
         mc.stop()
         mc.join()
-    
+
     wq.stop()
     wq.join()
-    
+
     sys.exit(0)
 
 def main():

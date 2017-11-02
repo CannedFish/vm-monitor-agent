@@ -83,7 +83,7 @@ class _DB(object):
                 # Table: (id, container_id, object_id, timestramp, local_path)
                 cur = self._conn.cursor()
                 cur.execute("INSERT INTO MESSAGES VALUES \
-                        (null,'%s','%s',null, '%s')" % (\
+                        (null,'%s','%s',null,'%s')" % (\
                         self._container_id, \
                         self._object_id, \
                         self._local_path))
