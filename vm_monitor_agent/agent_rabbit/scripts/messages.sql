@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS MESSAGES (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  container_id TEXT,
+  object_id TEXT,
+  local_path TEXT,
+  timestramp TimeStamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
