@@ -36,8 +36,8 @@ if SYSTEM == 'Linux':
     conf_file_path = path.join('/etc', 'AgentRabbit/agent-rabbit.conf')
     dir_to_be_monitored = path.join(environ['HOME'], 'clouddoc')
 elif SYSTEM == 'Windows':
-    app_data_root = path.join(environ['APP'], 'AgentRabbit')
-    conf_file_path = path.join(environ['APP'], 'AgentRabbit/agent-rabbit.conf')
+    app_data_root = path.join(environ['APPDATA'], 'AgentRabbit')
+    conf_file_path = path.join(environ['APPDATA'], 'AgentRabbit/agent-rabbit.conf')
     dir_to_be_monitored = 'c:\clouddoc'
 else:
     raise ValueError("We are not support %s now." % SYSTEM)
