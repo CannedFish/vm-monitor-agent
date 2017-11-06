@@ -543,7 +543,7 @@ def upload_object(request, data, files):
     auth_spec = get_auth_spec(data)
     container_name = data['container_name']
     object_name = data['object_name']
-    object_file = data['upload_file']
+    object_file = files['upload_file']
     if not container_name:
         return common_error_response("Container name is required")
     if object_file:
