@@ -29,7 +29,7 @@ class AutoUploader(MyThread):
                         continue
                     info = DB.get_info()
                     filename = path.basename(filepath)
-                    swift.upload_object({
+                    swift.upload_object('', {
                         'user': info['usr'],
                         'key': info['pwd'],
                         'auth_url': info['auth_url'],

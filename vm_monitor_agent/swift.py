@@ -734,7 +734,7 @@ def get_object(request, data):
         timestamp = None
         print "filename is " + str(orig_name)
 
-        with open("/root/" + orig_name, 'w') as test:
+        with open("/root/clouddoc/" + orig_name, 'w') as test:
             test.write(data.read())
         try:
             ts_float = float(headers.get('x-timestamp'))

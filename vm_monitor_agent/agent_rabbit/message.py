@@ -5,6 +5,7 @@ from db import DB
 from settings import dir_to_be_monitored
 
 from os import path
+import json
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -42,7 +43,10 @@ class Message(object):
                 'with_data': 1
             })
             LOG.debug("Download return: %s" % ret)
-            self._msg.update_local_path(path.join(dir_to_be_monitored, ret['name']))
+            ret = json.loads(ret)
+            local_path = path.join(dir_to_be_monitored, ret['results'][0]['orig_name'])
+            LOG.info("File %s downloaded" % local_path)
+            self._msg.update_local_path(local_path)
             return True
         except Exception, e:
             LOG.error(e)
