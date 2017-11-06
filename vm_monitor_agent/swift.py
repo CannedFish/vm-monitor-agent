@@ -1,4 +1,4 @@
-import datetime
+﻿import datetime
 import json
 
 from swift_common import get_auth_spec, swift_api, Container, common_success_response, common_error_response, GLOBAL_READ_ACL, \
@@ -734,7 +734,7 @@ def get_object(request, data):
         timestamp = None
         print "filename is " + str(orig_name)
 
-        with open("/root/clouddoc/" + orig_name, 'w') as test:
+        with open("%s/%s" % (request, orig_name), 'w') as test:
             test.write(data.read())
         try:
             ts_float = float(headers.get('x-timestamp'))

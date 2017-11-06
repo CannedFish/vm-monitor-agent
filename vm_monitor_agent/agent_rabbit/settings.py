@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 # RabbitMQ
 host = "127.0.0.1"
@@ -27,6 +27,7 @@ auto_upload_interval = 10
 # Name of this app
 from os import path, environ
 import platform
+import re
 
 # Monitor Directory
 

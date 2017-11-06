@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from vm_monitor_agent import swift
+from settings import dir_to_be_monitored
 
 print "Test upload:"
 swift.upload_object('', {

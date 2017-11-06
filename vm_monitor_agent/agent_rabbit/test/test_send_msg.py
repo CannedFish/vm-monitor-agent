@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import sys
@@ -60,7 +60,7 @@ def main():
     mq_sender = MQ_Send_Service(WORKORDER_RABBITMQ_PROP)
     info = {
         "container_id": "dongdong",
-        "object_id": "setuptools-36.6.0.zip",
+        "object_id": "1gb_file",
         "username": "yes",
         "password": "123",
         "auth_url": "http://192.168.1.89:5000/v2.0",

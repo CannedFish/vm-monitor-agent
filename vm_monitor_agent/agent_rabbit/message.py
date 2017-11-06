@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 from vm_monitor_agent import swift
 from db import DB
@@ -33,7 +33,7 @@ class Message(object):
 
     def file_download(self):
         try:
-            ret = swift.get_object('', {
+            ret = swift.get_object(dir_to_be_monitored, {
                 'user': self.username,
                 'key': self.password,
                 'auth_url': self.auth_url,
