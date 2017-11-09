@@ -34,14 +34,17 @@ import re
 SYSTEM = platform.system()
 if SYSTEM == 'Linux':
     app_data_root = path.join('/var', 'AgentRabbit')
-    conf_file_path = path.join('/etc', 'AgentRabbit/agent-rabbit.conf')
+    conf_dir = path.join('/etc', 'AgentRabbit')
     dir_to_be_monitored = path.join(environ['HOME'], 'clouddoc')
 elif SYSTEM == 'Windows':
     app_data_root = path.join(environ['APPDATA'], 'AgentRabbit')
-    conf_file_path = path.join(environ['APPDATA'], 'AgentRabbit/agent-rabbit.conf')
+    conf_dir = app_data_root
     dir_to_be_monitored = 'c:\clouddoc'
 else:
     raise ValueError("We are not support %s now." % SYSTEM)
+
+db_file_path = path.join(app_data_root, 'msgs.db')
+conf_file_path = path.join(conf_dir, 'agent-rabbit.conf')
 
 if path.exists(conf_file_path):
     booleanValues = [

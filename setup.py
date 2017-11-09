@@ -5,6 +5,8 @@ import os
 import sys
 import platform
 
+from vm_monitor_agent.agent_rabbit import setup as agent_rabbit_setup 
+
 HERE = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(HERE, 'vm_monitor_agent'))
 
@@ -39,6 +41,8 @@ def main():
         }
     )
     setup(**setup_args)
+
+    agent_rabbit_setup.main()
 
 if __name__ == '__main__':
     main()

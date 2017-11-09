@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from settings import app_data_root
+from settings import app_data_root, db_file_path
 
 from os import path
 import sqlite3
@@ -10,7 +10,7 @@ LOG = logging.getLogger(__name__)
 
 class _DB(object):
     def __init__(self):
-        self._conn = sqlite3.connect(path.join(app_data_root, 'msgs.db'), \
+        self._conn = sqlite3.connect(db_file_path, \
             check_same_thread=False)
         self._info = self._init_info()
 
