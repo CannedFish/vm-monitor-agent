@@ -5,7 +5,7 @@ import win32file
 
 from vm_monitor_agent.common import MyThread
 from base_monitor import DirMonitor
-from settings import dir_to_be_monitored
+from vm_monitor_agent.agent_rabbit.settings import dir_to_be_monitored
 
 from os import path
 import logging
