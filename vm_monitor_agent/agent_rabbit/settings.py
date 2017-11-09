@@ -18,9 +18,6 @@ routing_key = "VMS1.*"
 prefetch_count = 32
 workOrderQueue = "VMS1.workOrderResourceAMQP"
 
-# Log
-log_file_path = '/var/log/agent-rabbit.log'
-
 # Auto uploader interval
 auto_upload_interval = 10
 
@@ -36,10 +33,12 @@ if SYSTEM == 'Linux':
     app_data_root = path.join('/var', 'AgentRabbit')
     conf_dir = path.join('/etc', 'AgentRabbit')
     dir_to_be_monitored = path.join(environ['HOME'], 'clouddoc')
+    log_file_path = '/var/log/agent-rabbit.log'
 elif SYSTEM == 'Windows':
     app_data_root = path.join(environ['APPDATA'], 'AgentRabbit')
     conf_dir = app_data_root
     dir_to_be_monitored = 'c:\clouddoc'
+    log_file_path = path.join(app_data_root, 'agent-rabbit.log')
 else:
     raise ValueError("We are not support %s now." % SYSTEM)
 
