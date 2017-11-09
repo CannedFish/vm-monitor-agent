@@ -16,10 +16,16 @@ REQs = ['psutil==5.0.0', 'requests==2.11.1', 'web.py==0.38', 'pika==0.10.0', 'py
 
 if SYSTEM == 'Linux':
     REQs.append('pyinotify==0.9.4')
-    ENTRY = ['vm_agent = vm_monitor_agent.main:main',]
+    ENTRY = [
+        'vm_agent = vm_monitor_agent.main:main',
+        'agent_rabbit = vm_monitor_agent.agent_rabbit.main:main'
+    ]
 elif SYSTEM == 'Windows':
     REQs.append('pypiwin32==219')
-    ENTRY = ['proc_info_service = vm_monitor_agent.win_service:win_main',]
+    ENTRY = [
+        'proc_info_service = vm_monitor_agent.win_service:win_main',
+        'agent_rabbit = vm_monitor_agent.agent_rabbit.win_service:win_main'
+    ]
 else:
     raise ValueError("We are not support %s now." % SYSTEM)
 

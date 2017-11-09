@@ -8,7 +8,7 @@ import win32event
 import logging
 LOG = logging.getLogger(__name__)
 
-class ProcInfoService(win32serviceutil.ServiceFramework):
+class AgentRabbit(win32serviceutil.ServiceFramework):
     """ 
     Usage: 'CMD [options] install|update|remove|start [...]|stop|restart [...]|debug [...]' 
     Options for 'install' and 'update' commands only: 
@@ -51,7 +51,7 @@ class ProcInfoService(win32serviceutil.ServiceFramework):
         main.exit_handler(2, None)
 
 def win_main():
-    win32serviceutil.HandleCommandLine(ProcInfoService)
+    win32serviceutil.HandleCommandLine(AgentRabbit)
 
 if __name__ == '__main__':
     win_main()
