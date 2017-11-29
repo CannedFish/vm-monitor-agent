@@ -59,13 +59,14 @@ def main():
     # send message
     mq_sender = MQ_Send_Service(WORKORDER_RABBITMQ_PROP)
     info = {
+        "uuid": "abcdkeasjfk-sajdfwjf203",
         "container_id": "dongdong",
         "object_id": "1gb_file",
         "username": "yes",
         "password": "123",
         "auth_url": "http://192.168.1.89:5000/v2.0",
         "tenant_name": "yes",
-        "token": "6677ddef0123456789abcdef0123456789"
+        # "token": "6677ddef0123456789abcdef0123456789"
     }
     mq_sender.send_message(json.dumps(info))
     LOG.info("send msg %s", info)
