@@ -19,14 +19,14 @@ class Message(object):
         self.password = msg_body['password']
         self.auth_url = msg_body['auth_url']
         self.tenant_name = msg_body['tenant_name']
-        self.token = msg_body['token']
+        self.uuid = msg_body['uuid']
 
         self._msg = DB.msg(self.container_id, self.object_id)
         self._info = DB.info(self.username, \
                 self.password, \
                 self.auth_url, \
                 self.tenant_name, \
-                self.token)
+                self.uuid)
 
     def save(self):
         return self._msg.save()

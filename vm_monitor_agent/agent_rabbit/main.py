@@ -51,6 +51,8 @@ def main(vm_uuid=None):
         "rabbitmq.workOrderQueue": vm_uuid or settings.workOrderQueue
     }
 
+    LOG.info("Rabbit configuration: %s" % WORKORDER_RABBITMQ_PROP)
+
     while True:
         try:
             h = MQ_ReceiveService(WORKORDER_RABBITMQ_PROP)
