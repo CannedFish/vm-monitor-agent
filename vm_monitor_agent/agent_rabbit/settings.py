@@ -6,7 +6,8 @@ vhost = "/"
 username = "guest"
 password = "guest"
 port = 5672
-exchange_name = "message_router"
+
+exchange_name = "htai_file_push"
 exchange_type = "topic"
 exchange_durable = True
 exchange_auto_delete = False
@@ -14,9 +15,9 @@ exchange_auto_delete = False
 queue_durable = False
 queue_auto_delete = False
 queue_exclusive = False
-routing_key = "VMS1.*"
+routing_key = "VM_UUID*"
 prefetch_count = 32
-workOrderQueue = "VMS1.workOrderResourceAMQP"
+workOrderQueue = "VM_UUID*"
 
 # Auto uploader interval
 auto_upload_interval = 10

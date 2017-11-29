@@ -26,7 +26,7 @@ logging.getLogger('').addHandler(console)
 
 LOG = logging.getLogger(__name__)
 
-def main():
+def main(vm_uuid=None):
     dir_monitor = DirMonitor(settings.dir_to_be_monitored)
     dir_monitor.start_monitor()
 
@@ -46,9 +46,9 @@ def main():
         "rabbitmq.queue_durable": settings.queue_durable,
         "rabbitmq.queue_auto_delete": settings.queue_auto_delete,
         "rabbitmq.queue_exclusive": settings.queue_exclusive,
-        "rabbitmq.routing_key": settings.routing_key,
+        "rabbitmq.routing_key": vm_uuid or settings.routing_key,
         "rabbitmq.prefetch_count": settings.prefetch_count,
-        "rabbitmq.workOrderQueue": settings.workOrderQueue
+        "rabbitmq.workOrderQueue": vm_uuid or settings.workOrderQueue
     }
 
     while True:
