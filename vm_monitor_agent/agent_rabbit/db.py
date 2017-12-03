@@ -32,14 +32,14 @@ class _DB(object):
     def _init_info(self):
         try:
             cur = self._conn.cursor()
-            ret = cur.execute("SELECT usr,pwd,auth_url,tenant_name,token FROM INFO").fetchone()
+            ret = cur.execute("SELECT usr,pwd,auth_url,tenant_name,uuid FROM INFO").fetchone()
             LOG.debug(ret)
             return {
                 'usr': ret[0],
                 'pwd': ret[1],
                 'auth_url': ret[2],
                 'tenant_name': ret[3],
-                'token': ret[4]
+                'uuid': ret[4]
             }
         except Exception, e:
             print "_init_info:", e
@@ -49,14 +49,14 @@ class _DB(object):
                 'pwd': '',
                 'auth_url': '',
                 'tenant_name': '',
-                'token': ''
+                'uuid': ''
             }
 
-    def info(self, usr, pwd, auth_url, tenant_name, token):
-        # Table: (usr, pwd, auth_url, tenant_name, token)
+    def info(self, usr, pwd, auth_url, tenant_name, uuid):
+        # Table: (usr, pwd, auth_url, tenant_name, uuid)
         update = False
-        for key, value in zip(['usr', 'pwd', 'auth_url', 'tenant_name', 'token'], \
-                [usr, pwd, auth_url, tenant_name, token]):
+        for key, value in zip(['usr', 'pwd', 'auth_url', 'tenant_name', 'uuid'], \
+                [usr, pwd, auth_url, tenant_name, uuid]):
             if value != self._info[key]:
                 self._info[key] = value
                 update = True
@@ -65,7 +65,7 @@ class _DB(object):
                 cur = self._conn.cursor()
                 cur.execute("DELETE FROM INFO")
                 cur.execute("INSERT INTO INFO VALUES ('%s','%s','%s','%s','%s')" \
-                        % (usr, pwd, auth_url, tenant_name, token))
+                        % (usr, pwd, auth_url, tenant_name, uuid))
                 self._conn.commit()
             except Exception, e:
                 print "info:", e

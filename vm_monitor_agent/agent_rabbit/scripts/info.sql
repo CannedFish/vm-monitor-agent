@@ -3,5 +3,5 @@ CREATE TABLE IF NOT EXISTS INFO (
   pwd TEXT,
   auth_url TEXT,
   tenant_name TEXT,
-  token TEXT
+  uuid TEXT
 );
