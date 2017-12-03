@@ -11,6 +11,10 @@ elif settings.SYSTEM == 'Windows':
 else:
     raise ValueError("We are not support %s now." % SYSTEM)
 
+from optparse import OptionParser
+import os
+import sys
+import signal
 import logging
 
 logging.basicConfig(level=logging.DEBUG, \
@@ -26,10 +30,48 @@ logging.getLogger('').addHandler(console)
 
 LOG = logging.getLogger(__name__)
 
-def main(vm_uuid=None):
+uploader = None
+msg_handler = None
+handler_running = True
+def exit_handler(signum, frame):
+    LOG.debug('Catched interrupt signal')
+	
+    global uploader
+    uploader.stop()
+	
+    global handler_running
+    handler_running = False
+
+    global msg_handler
+    msg_handler.stop()
+	
+    sys.exit(0)
+
+def main():
+    usage = 'Usage: %prog [options]'
+    parser = OptionParser(usage=usage)
+    parser.add_option('-u', '--uuid', dest='uuid', \
+            default=None, \
+            help="UUID of this VM")
+    
+    options, args = parser.parse_args()
+    vm_uuid = options.uuid
+
+    LOG.info("Agent Rabbit's PID: %s" % os.getpid())
+    LOG.info("VM UUID: %s" % vm_uuid)
+    # initialization
+    try:
+        signal.signal(signal.SIGINT, exit_handler)
+        if settings.SYSTEM == 'Linux':
+            signal.signal(signal.SIGHUP, exit_handler)
+        signal.signal(signal.SIGTERM, exit_handler)
+    except ValueError, e:
+        LOG.error(e)
+
     dir_monitor = DirMonitor(settings.dir_to_be_monitored)
     dir_monitor.start_monitor()
 
+    global uploader
     uploader = AutoUploader(dir_monitor, settings.auto_upload_interval)
     uploader.start()
 
@@ -51,13 +93,16 @@ def main(vm_uuid=None):
         "rabbitmq.workOrderQueue": vm_uuid or settings.workOrderQueue
     }
 
-    while True:
+    LOG.info("Rabbit Properties: %s" % WORKORDER_RABBITMQ_PROP)
+
+    global msg_handler
+    global handler_running
+    while handler_running:
         try:
-            h = MQ_ReceiveService(WORKORDER_RABBITMQ_PROP)
-            h.receive_message()
+            msg_handler = MQ_ReceiveService(WORKORDER_RABBITMQ_PROP)
+            msg_handler.receive_message()
         except Exception, e:
             LOG.error(e)
 
 if __name__ == '__main__':
     main()
-

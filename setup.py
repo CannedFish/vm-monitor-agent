@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.join(HERE, 'vm_monitor_agent'))
 
 SYSTEM = platform.system()
 
-REQs = ['psutil==5.0.0', 'requests==2.11.1', 'web.py==0.38', 'pika==0.10.0', 'python-swiftclient==3.1.0']
+REQs = ['psutil==5.0.0', 'requests>=2.11.1', 'web.py==0.38', 'pika==0.10.0', 'python-swiftclient==3.1.0']
 
 if SYSTEM == 'Linux':
     REQs.append('pyinotify==0.9.4')
@@ -23,8 +23,10 @@ if SYSTEM == 'Linux':
 elif SYSTEM == 'Windows':
     REQs.append('pypiwin32==219')
     ENTRY = [
+        'vm_agent = vm_monitor_agent.main:main',
         'proc_info_service = vm_monitor_agent.win_service:win_main',
-        'agent_rabbit = vm_monitor_agent.agent_rabbit.win_service:win_main'
+        'agent_rabbit_service = vm_monitor_agent.agent_rabbit.win_service:win_main',
+        'agent_rabbit = vm_monitor_agent.agent_rabbit.main:main'
     ]
 else:
     raise ValueError("We are not support %s now." % SYSTEM)

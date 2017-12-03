@@ -18,6 +18,7 @@ for p in CONFIG_PATH:
                 settings[l[0].strip()] = l[1].strip()
     settings['net_interface'] = map(lambda x: x.strip(), \
             re.split(',', settings['net_interface']))
+    settings['start_proc_monitor'] = True if settings['start_proc_monitor'] == 'true' else False
 
 # configure platform specific
 import platform
@@ -69,26 +70,4 @@ if ret['success'] and re.match('^[\d\.]+$', str(ret['data'])):
     settings['report_interval'] = ret['data']
 print settings['report_interval']
 settings['rt_interval'] = int(settings['rt_interval'])
-
-# configure log
-import logging
-from os import path, makedirs
-
-log_level = {
-    'DEBUG': logging.DEBUG,
-    'INFO': logging.INFO,
-    'WARNING': logging.WARNING,
-    'ERROR': logging.ERROR,
-    'CRITICAL': logging.CRITICAL
-}
-
-log_dir = settings['log_file'].rpartition(settings['log_file'][settings['log_file'].rindex('/')])[0]
-if not path.exists(log_dir):
-    makedirs(log_dir)
-
-logging.basicConfig(level=log_level[settings['log_level']], \
-        format='[%(asctime)s] %(filename)s[line:%(lineno)d]: %(message)s', \
-        datefmt='%a, %d %b %Y %H:%M:%S', \
-        filename=settings['log_file'], \
-        filemode='a')
 

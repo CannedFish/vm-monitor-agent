@@ -71,6 +71,7 @@ class MQ_ReceiveService(object):
 
     def receive_message(self):
         channel = self.connection.channel()
+        self._channel = channel
         channel.exchange_declare(exchange=self.exchange, \
                                 type=self.exchangeType, \
                                 durable=self.exchangeDurable, \
@@ -101,6 +102,10 @@ class MQ_ReceiveService(object):
                 LOG.warning("Download failed.")
                 return ;
 
-        channel.basic_consume(callback, queue=self.msgQueue, no_ack=True)
+        self._tag = channel.basic_consume(callback, queue=self.msgQueue, no_ack=True)
         channel.start_consuming()
 
+    def stop(self):
+        self._channel.stop_consuming()
+        self._channel.basic_cancel(self._tag)
+        self._channel.close()
