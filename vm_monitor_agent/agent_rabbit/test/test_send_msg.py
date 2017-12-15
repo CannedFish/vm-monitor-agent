@@ -60,13 +60,14 @@ def main():
     mq_sender = MQ_Send_Service(WORKORDER_RABBITMQ_PROP)
     info = {
         "uuid": "abcdkeasjfk-sajdfwjf203",
-        "container_id": "dongdong",
-        "object_id": "1gb_file",
+        "container_id": "test_swift",
+        "object_id": "test_swift.xlsx",
         "username": "yes",
         "password": "123",
         "auth_url": "http://192.168.1.89:5000/v2.0",
         "tenant_name": "yes",
-        # "token": "6677ddef0123456789abcdef0123456789"
+        "orig_name": "test_swift.xlsx",
+        "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     }
     mq_sender.send_message(json.dumps(info))
     LOG.info("send msg %s", info)

@@ -97,7 +97,9 @@ class MQ_ReceiveService(object):
                 return ;
 
             # Download file
-            LOG.info("Try to download %s/%s" % (msg['container_id'], msg['object_id']))
+            LOG.info("Try to download %s/%s, orig_name is %s, type is %s" \
+                    % (msg['container_id'], msg['object_id'], \
+                    msg['orig_name'], msg['content_type']))
             if not msg_obj.file_download():
                 LOG.warning("Download failed.")
                 return ;

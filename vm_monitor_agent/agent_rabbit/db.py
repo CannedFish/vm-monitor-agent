@@ -17,13 +17,14 @@ class _DB(object):
     def __del__(self):
         self._conn.close()
 
-    def msg(self, container_id, object_id):
-        return _DB.__MSG(container_id, object_id, self._conn)
+    def msg(self, container_id, object_id, orig_name, content_type, uuid):
+        return _DB.__MSG(self._conn, uuid, \
+                container_id, object_id, orig_name, content_type)
 
     def get_ids_by_localpath(self, local_path):
         try:
             cur = self._conn.cursor()
-            ret = cur.execute("SELECT container_id, object_id \
+            ret = cur.execute("SELECT container_id,object_id,orig_name,content_type \
                     FROM MESSAGES WHERE local_path='%s'" % local_path)
             return ret.fetchone()
         except Exception, e:
@@ -32,14 +33,13 @@ class _DB(object):
     def _init_info(self):
         try:
             cur = self._conn.cursor()
-            ret = cur.execute("SELECT usr,pwd,auth_url,tenant_name,uuid FROM INFO").fetchone()
+            ret = cur.execute("SELECT usr,pwd,auth_url,tenant_name FROM INFO").fetchone()
             LOG.debug(ret)
             return {
                 'usr': ret[0],
                 'pwd': ret[1],
                 'auth_url': ret[2],
-                'tenant_name': ret[3],
-                'uuid': ret[4]
+                'tenant_name': ret[3]
             }
         except Exception, e:
             print "_init_info:", e
@@ -48,15 +48,14 @@ class _DB(object):
                 'usr': '',
                 'pwd': '',
                 'auth_url': '',
-                'tenant_name': '',
-                'uuid': ''
+                'tenant_name': ''
             }
 
-    def info(self, usr, pwd, auth_url, tenant_name, uuid):
+    def info(self, usr, pwd, auth_url, tenant_name):
         # Table: (usr, pwd, auth_url, tenant_name, uuid)
         update = False
-        for key, value in zip(['usr', 'pwd', 'auth_url', 'tenant_name', 'uuid'], \
-                [usr, pwd, auth_url, tenant_name, uuid]):
+        for key, value in zip(['usr', 'pwd', 'auth_url', 'tenant_name'], \
+                [usr, pwd, auth_url, tenant_name]):
             if value != self._info[key]:
                 self._info[key] = value
                 update = True
@@ -64,8 +63,8 @@ class _DB(object):
             try:
                 cur = self._conn.cursor()
                 cur.execute("DELETE FROM INFO")
-                cur.execute("INSERT INTO INFO VALUES ('%s','%s','%s','%s','%s')" \
-                        % (usr, pwd, auth_url, tenant_name, uuid))
+                cur.execute("INSERT INTO INFO VALUES ('%s','%s','%s','%s')" \
+                        % (usr, pwd, auth_url, tenant_name))
                 self._conn.commit()
             except Exception, e:
                 print "info:", e
@@ -75,20 +74,27 @@ class _DB(object):
         return self._info
 
     class __MSG(object):
-        def __init__(self, container_id, object_id, conn):
+        def __init__(self, conn, uuid, container_id, object_id, orig_name, content_type):
+            self._conn = conn
+            self._uuid = uuid
             self._container_id = container_id
             self._object_id = object_id
+            self._orig_name = orig_name
+            self._content_type = content_type
             self._local_path = ''
-            self._conn = conn
 
         def save(self):
             try:
                 # Table: (id, container_id, object_id, timestramp, local_path)
                 cur = self._conn.cursor()
-                cur.execute("INSERT INTO MESSAGES (container_id,object_id,local_path) \
-                        VALUES ('%s','%s','%s')" % (\
+                cur.execute("INSERT INTO MESSAGES \
+                        (uuid,container_id,object_id,orig_name,content_type,local_path) \
+                        VALUES ('%s','%s','%s','%s','%s','%s')" % (\
+                        self._uuid, \
                         self._container_id, \
                         self._object_id, \
+                        self._orig_name, \
+                        self._content_type, \
                         self._local_path))
                 self._conn.commit()
                 return True
@@ -102,8 +108,8 @@ class _DB(object):
                 self._local_path = local_path
                 cur = self._conn.cursor()
                 cur.execute("UPDATE MESSAGES SET local_path='%s' \
-                        where container_id='%s' and object_id='%s'" \
-                        % (local_path, self._container_id, self._object_id))
+                        where uuid='%s'" \
+                        % (local_path, self._uuid))
                 self._conn.commit()
                 return True
             except Exception, e:

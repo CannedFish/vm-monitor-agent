@@ -695,6 +695,8 @@ def get_object(request, data):
             "tenant_name": "tenant_name",
             "container_name": "container_name",
             "object_name": "object_name",
+            "orig_name": "orig_name",
+            "content_type": "content_type",
             "with_data": "1"
         }
     
@@ -726,7 +728,7 @@ def get_object(request, data):
             'os_username': data.get('user'),
             'os_password': data.get('key'),
 	        'os_tenant_name': data.get('tenant_name'),
-			'out_file': path.join(request, data.get('object_name'))
+			'out_file': path.join(request, data.get('orig_name'))
         }
 
         with SwiftService(options=options) as swift:

@@ -20,13 +20,18 @@ class Message(object):
         self.auth_url = msg_body['auth_url']
         self.tenant_name = msg_body['tenant_name']
         self.uuid = msg_body['uuid']
+        self.orig_name = msg_body['orig_name']
+        self.content_type = msg_body['content_type']
 
-        self._msg = DB.msg(self.container_id, self.object_id)
+        self._msg = DB.msg(self.container_id, \
+                self.object_id, \
+                self.orig_name, \
+                self.content_type, \
+                self.uuid)
         self._info = DB.info(self.username, \
                 self.password, \
                 self.auth_url, \
-                self.tenant_name, \
-                self.uuid)
+                self.tenant_name)
 
     def save(self):
         return self._msg.save()
@@ -40,6 +45,8 @@ class Message(object):
                 'tenant_name': self.tenant_name,
                 'container_name': self.container_id,
                 'object_name': self.object_id,
+                'orig_name': self.orig_name,
+                'content_type': self.content_type,
                 'with_data': 1
             })
             LOG.debug("Download return: %s" % ret)
