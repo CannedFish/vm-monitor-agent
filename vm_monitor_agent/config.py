@@ -5,7 +5,7 @@ from os import path
 
 CONFIG_PATH = ['etc/vma.conf', '/etc/vma.conf']
 
-settings = {}
+settings = {'start_proc_monitor':True}
 
 for p in CONFIG_PATH:
     if not path.exists(p):

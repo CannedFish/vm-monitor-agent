@@ -1,9 +1,13 @@
-﻿import datetime
+﻿# -*- coding: utf-8 -*-
+
+import datetime
 import json
+from os import path
 
 from swift_common import get_auth_spec, swift_api, Container, common_success_response, common_error_response, GLOBAL_READ_ACL, \
     swift_container_exists, _metadata_to_header, swift_get_objects, FOLDER_DELIMITER, _objectify, wildcard_search, \
     swift_object_exists, CHUNK_SIZE
+from swiftclient.service import SwiftService, SwiftError
 
 
 
@@ -714,43 +718,24 @@ def get_object(request, data):
     """
     with_data = data.get('with_data')
     resp_chunk_size = CHUNK_SIZE
-    container_name = data.get('container_name')
-    object_name = data.get('object_name')
+    container = data.get('container_name')
+    objects = [data.get('object_name')]
     try:
-        if not container_name:
-            return common_error_response("Container name is required")
-        auth_spec = get_auth_spec(data)
-        if with_data:
-            headers, data = swift_api(**auth_spec).get_object(
-                container_name, object_name, resp_chunk_size=resp_chunk_size)
-
-        else:
-            data = None
-            headers = swift_api(**auth_spec).head_object(container_name,
-                                                     object_name)
-        orig_name = headers.get("x-object-meta-orig-filename")
-        bytes = headers.get("content-length")
-        print "bytes are " + str(bytes)
-        timestamp = None
-        print "filename is " + str(orig_name)
-
-        with open("%s/%s" % (request, orig_name), 'w') as test:
-            test.write(data.read())
-        try:
-            ts_float = float(headers.get('x-timestamp'))
-            timestamp = datetime.utcfromtimestamp(ts_float).isoformat()
-        except Exception:
-            pass
-        obj_info = {
-            'name': object_name,
-            'data': data.response_dict,
-            'orig_name': orig_name,
-            'bytes': headers.get('content-length'),
-            'content_type': headers.get('content-type'),
-            'etag': headers.get('etag'),
-            'timestamp': timestamp,
+        options = {
+            'os_auth_url': data.get('auth_url'),
+            'os_username': data.get('user'),
+            'os_password': data.get('key'),
+	        'os_tenant_name': data.get('tenant_name'),
+			'out_file': path.join(request, data.get('object_name'))
         }
-        return common_success_response([obj_info], "get object successfully!")
+
+        with SwiftService(options=options) as swift:
+            try:
+                down_iter = swift.download(container=container, objects=objects)
+                return common_success_response([down for down in down_iter], "get object successfully!")
+            except SwiftError as e:
+                logger.error(e.value)
+
     except Exception as e:
         return common_error_response(" Get object failed, error is %s" %e)
 
@@ -771,19 +756,20 @@ def get_capabilities(request, data):
     # some Swift installations do not support it (see `expose_info` docs).
     except Exception as e:
         return common_error_response("get Capabilities failed error is %s" % e)
+	
+if __name__ == "__main__":
+    data = {
+        "user": "yes",
+        "key": "123",
+        "auth_url": "http://192.168.1.89:5000/v2.0",
+        "tenant_name": "yes",
+        "container_name": "test_swift",
+        "object_name": "nidaye.xls",
+        "with_data": "1"
+    }
 
-data = {
-            "user": "yes",
-            "key": "123",
-            "auth_url": "http://192.168.1.89:5000/v2.0",
-            "tenant_name": "yes",
-            "container_name": "dongdong",
-            "object_name": "setuptools-36.6.0.zip",
-            "with_data": "1"
-        }
-
-# Example:
-request = None
-return_json = get_object(request, data)
-print return_json
+    # Example:
+    request = "C:/clouddoc"
+    return_json = get_object(request, data)
+    print return_json
 
