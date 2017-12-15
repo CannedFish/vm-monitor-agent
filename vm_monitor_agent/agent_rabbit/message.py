@@ -51,7 +51,7 @@ class Message(object):
             })
             LOG.debug("Download return: %s" % ret)
             ret = json.loads(ret)
-            local_path = path.join(dir_to_be_monitored, ret['results'][0]['orig_name'])
+            local_path = path.join(dir_to_be_monitored, self.orig_name)
             LOG.info("File %s downloaded" % local_path)
             self._msg.update_local_path(local_path)
             return True
