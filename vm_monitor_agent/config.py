@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 import uuid
-from os import path
+from os import path, environ
 
 CONFIG_PATH = ['etc/vma.conf', '/etc/vma.conf']
 

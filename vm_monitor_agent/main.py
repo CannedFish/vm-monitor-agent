@@ -94,7 +94,7 @@ def main():
         sys.argv[1] = settings['port']
         api_server.run()
 
-    p.wait()
+    # p.wait()
 
 if __name__ == '__main__':
     main()

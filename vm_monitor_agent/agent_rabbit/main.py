@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from msghandler import MQ_ReceiveService
-from auto_uploader import AutoUploader
 import settings
 
 if settings.SYSTEM == 'Linux':
@@ -30,6 +28,9 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 LOG = logging.getLogger(__name__)
+
+from msghandler import MQ_ReceiveService
+from auto_uploader import AutoUploader
 
 uploader = None
 msg_handler = None
