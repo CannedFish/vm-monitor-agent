@@ -38,7 +38,7 @@ logging.basicConfig(level=log_level[settings['log_level']], \
 
 LOG = logging.getLogger(__name__)
 
-Agent_Rabbit_Process = None
+# Agent_Rabbit_Process = None
 
 def exit_handler(signum, frame):
     LOG.debug('Catched interrupt signal')
@@ -54,10 +54,10 @@ def exit_handler(signum, frame):
     wq.stop()
     wq.join()
 
-    global Agent_Rabbit_Process
-    if Agent_Rabbit_Process is not None:
+    # global Agent_Rabbit_Process
+    # if Agent_Rabbit_Process is not None:
         # os.kill(Agent_Rabbit_PID, signal.SIGTERM)
-        Agent_Rabbit_Process.terminate()
+        # Agent_Rabbit_Process.terminate()
 
     sys.exit(0)
 
@@ -75,8 +75,10 @@ def main():
 
     # start agent_rabbit
     LOG.info('VM UUID: %s' % settings['instance_id'])
-    p = Popen(['agent_rabbit', '-u', settings['instance_id']], shell=True)
-    Agent_Rabbit_Process = p
+    # p = Popen(['agent_rabbit', '-u', settings['instance_id']], shell=True)
+    # Agent_Rabbit_Process = p
+    with open(settings['agent_rabbit_app_root'], 'w') as fd:
+        fd.write(settings['instance_id'])
 
     if settings['start_proc_monitor']:
         # start agent

@@ -63,8 +63,6 @@ class MonitorThread(MyThread):
 
 
 class WinDirMonitor(DirMonitor):
-
-    
     def __init__(self, dirname):
         super(WinDirMonitor, self).__init__()
         self._monitor_thread = MonitorThread(dirname)

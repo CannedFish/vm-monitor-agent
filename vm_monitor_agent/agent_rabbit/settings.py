@@ -45,6 +45,7 @@ else:
 
 db_file_path = path.join(app_data_root, 'msgs.db')
 conf_file_path = path.join(conf_dir, 'agent-rabbit.conf')
+vm_id = path.join(app_data_root, 'vm.id')
 
 if path.exists(conf_file_path):
     booleanValues = [

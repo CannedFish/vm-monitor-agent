@@ -15,6 +15,7 @@ from optparse import OptionParser
 import os
 import sys
 import signal
+import time
 import logging
 
 logging.basicConfig(level=logging.DEBUG, \
@@ -33,18 +34,22 @@ LOG = logging.getLogger(__name__)
 uploader = None
 msg_handler = None
 handler_running = True
+dir_monitor = None
 def exit_handler(signum, frame):
     LOG.debug('Catched interrupt signal')
-	
+
     global uploader
     uploader.stop()
-	
+
     global handler_running
     handler_running = False
 
     global msg_handler
     msg_handler.stop()
-	
+
+    global dir_monitor
+    dir_monitor.stop_monitor()
+
     sys.exit(0)
 
 def main():
@@ -53,9 +58,16 @@ def main():
     parser.add_option('-u', '--uuid', dest='uuid', \
             default=None, \
             help="UUID of this VM")
-    
+
     options, args = parser.parse_args()
     vm_uuid = options.uuid
+
+    if vm_uuid is None:
+        while not os.path.exists(settings.vm_id):
+            LOG.warning("vm.id not exists, wait and try again..")
+            time.sleep(2)
+        with open(settings.vm_id, 'r') as fd:
+            vm_uuid = fd.read()
 
     LOG.info("Agent Rabbit's PID: %s" % os.getpid())
     LOG.info("VM UUID: %s" % vm_uuid)
@@ -68,6 +80,7 @@ def main():
     except ValueError, e:
         LOG.error(e)
 
+    global dir_monitor
     dir_monitor = DirMonitor(settings.dir_to_be_monitored)
     dir_monitor.start_monitor()
 

@@ -24,8 +24,10 @@ for p in CONFIG_PATH:
 import platform
 sysstr = platform.system()
 if sysstr == 'Linux':
+    app_data_root = path.join('/var', 'AgentRabbit')
     import fetcher_linux as fetcher
 elif sysstr == 'Windows':
+    app_data_root = path.join(environ['APPDATA'], 'AgentRabbit')
     import fetcher_win as fetcher
     import sys
     reload(sys)
@@ -70,4 +72,6 @@ if ret['success'] and re.match('^[\d\.]+$', str(ret['data'])):
     settings['report_interval'] = ret['data']
 print settings['report_interval']
 settings['rt_interval'] = int(settings['rt_interval'])
+
+settings['agent_rabbit_app_root'] = path.join(app_data_root, 'vm.id')
 
