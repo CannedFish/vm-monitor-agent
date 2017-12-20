@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from vm_monitor_agent.config import settings as agent_settings
 import settings
 
 if settings.SYSTEM == 'Linux':
@@ -42,14 +43,14 @@ def exit_handler(signum, frame):
     global uploader
     uploader.stop()
 
+    global dir_monitor
+    dir_monitor.stop_monitor()
+
     global handler_running
     handler_running = False
 
     global msg_handler
     msg_handler.stop()
-
-    global dir_monitor
-    dir_monitor.stop_monitor()
 
     sys.exit(0)
 
@@ -64,11 +65,12 @@ def main():
     vm_uuid = options.uuid
 
     if vm_uuid is None:
-        while not os.path.exists(settings.vm_id):
-            LOG.warning("vm.id not exists, wait and try again..")
-            time.sleep(2)
-        with open(settings.vm_id, 'r') as fd:
-            vm_uuid = fd.read()
+        # while not os.path.exists(settings.vm_id):
+            # LOG.warning("vm.id not exists, wait and try again..")
+            # time.sleep(2)
+        # with open(settings.vm_id, 'r') as fd:
+            # vm_uuid = fd.read()
+        vm_uuid = agent_settings['instance_id']
 
     LOG.info("Agent Rabbit's PID: %s" % os.getpid())
     LOG.info("VM UUID: %s" % vm_uuid)
@@ -117,6 +119,8 @@ def main():
             msg_handler.receive_message()
         except Exception, e:
             LOG.error(e)
+    
+    sys.exit(0)
 
 if __name__ == '__main__':
     main()

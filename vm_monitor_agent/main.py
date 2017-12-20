@@ -77,8 +77,8 @@ def main():
     LOG.info('VM UUID: %s' % settings['instance_id'])
     # p = Popen(['agent_rabbit', '-u', settings['instance_id']], shell=True)
     # Agent_Rabbit_Process = p
-    with open(settings['agent_rabbit_app_root'], 'w') as fd:
-        fd.write(settings['instance_id'])
+    # with open(settings['agent_rabbit_app_root'], 'w') as fd:
+        # fd.write(settings['instance_id'])
 
     if settings['start_proc_monitor']:
         # start agent

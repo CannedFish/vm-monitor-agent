@@ -24,10 +24,10 @@ for p in CONFIG_PATH:
 import platform
 sysstr = platform.system()
 if sysstr == 'Linux':
-    app_data_root = path.join('/var', 'AgentRabbit')
+    # app_data_root = path.join('/var', 'AgentRabbit')
     import fetcher_linux as fetcher
 elif sysstr == 'Windows':
-    app_data_root = path.join(environ['APPDATA'], 'AgentRabbit')
+    # app_data_root = path.join(environ['APPDATA'], 'AgentRabbit')
     import fetcher_win as fetcher
     import sys
     reload(sys)
@@ -59,7 +59,7 @@ ret = do_get(settings['metadata_server_ip'] + 'chargesystem_url/')
 if ret['success']:
     settings['host_server_ip'] = ret['data']
 ret = do_get(settings['metadata_server_ip'] + 'instance-id/')
-settings['instance_id'] = None
+settings['instance_id'] = "this-is-not-a-uuid"
 if ret['success']:
     settings['instance_id'] = ret['data']
 ret = do_get(settings['metadata_server_ip'] + 'issued_token/')
@@ -73,5 +73,5 @@ if ret['success'] and re.match('^[\d\.]+$', str(ret['data'])):
 print settings['report_interval']
 settings['rt_interval'] = int(settings['rt_interval'])
 
-settings['agent_rabbit_app_root'] = path.join(app_data_root, 'vm.id')
+# settings['agent_rabbit_app_root'] = path.join(app_data_root, 'vm.id')
 
