@@ -42,17 +42,18 @@ LOG = logging.getLogger(__name__)
 
 def exit_handler(signum, frame):
     LOG.debug('Catched interrupt signal')
-    agent.stop()
+    if settings['start_proc_monitor']:
+        agent.stop()
 
-    reporter.stop()
-    reporter.join()
+        reporter.stop()
+        reporter.join()
 
-    if settings['cmd_way'] == 'meta_serv':
-        mc.stop()
-        mc.join()
+        if settings['cmd_way'] == 'meta_serv':
+            mc.stop()
+            mc.join()
 
-    wq.stop()
-    wq.join()
+        wq.stop()
+        wq.join()
 
     # global Agent_Rabbit_Process
     # if Agent_Rabbit_Process is not None:
