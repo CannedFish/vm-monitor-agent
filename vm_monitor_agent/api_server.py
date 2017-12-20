@@ -8,6 +8,7 @@ import data_collector as dc
 import six.moves.urllib.parse as urlparse
 
 from datetime import datetime
+from os import path
 
 from report_server_api import reporter
 from keystoneclient.v2_0 import client as client_v2
@@ -15,6 +16,7 @@ from config import settings
 from swift_common import common_error_response, common_success_response, GLOBAL_READ_ACL, \
     CHUNK_SIZE, LIST_CONTENTS_ACL, _metadata_to_header, FOLDER_DELIMITER, wildcard_search, swift_api, Container, \
     get_auth_spec, swift_object_exists, swift_get_objects, _objectify, swift_container_exists
+from swift import get_object as swift_download_object
 
 LOG = logging.getLogger()
 
@@ -536,35 +538,48 @@ class Swift_Get_Object:
         resp_chunk_size = CHUNK_SIZE
         container_name = data.get('container_name')
         object_name = data.get('object_name')
+        download_to = data.get('download_to')
         try:
             if not container_name:
                 return common_error_response("Container name is required")
-            auth_spec = get_auth_spec(data)
-            if with_data:
-                headers, data = swift_api(**auth_spec).get_object(
-                    container_name, object_name, resp_chunk_size=resp_chunk_size)
-            else:
-                data = None
-                headers = swift_api(**auth_spec).head_object(container_name,
-                                                         object_name)
-            orig_name = headers.get("x-object-meta-orig-filename")
-            timestamp = None
-            try:
-                ts_float = float(headers.get('x-timestamp'))
-                timestamp = datetime.utcfromtimestamp(ts_float).isoformat()
-            except Exception:
-                pass
-            obj_info = {
-                'name': object_name,
-                # FIXME :This should a httpresponse
-                'data': data,
-                'orig_name': orig_name,
-                'bytes': headers.get('content-length'),
-                'content_type': headers.get('content-type'),
-                'etag': headers.get('etag'),
-                'timestamp': timestamp,
-            }
-            return common_success_response([obj_info], "get object successfully!")
+            if not download_to:
+                return common_error_response("Path to save download file is required")
+            return swift_download_object(save_path, {\
+                'user': data.get('user'),\
+                'key': data.get('key'),\
+                'auth_url': data.get('auth_url'),\
+                'tenant_name': data.get('tenant_name'),\
+                'container_name': data.get('container_name'),\
+                'object_name': data.get('object_name'),\
+                'orig_name': path.basename(download_to),\
+                'with_data': 1\
+            })
+            # auth_spec = get_auth_spec(data)
+            # if with_data:
+                # headers, data = swift_api(**auth_spec).get_object(
+                    # container_name, object_name, resp_chunk_size=resp_chunk_size)
+            # else:
+                # data = None
+                # headers = swift_api(**auth_spec).head_object(container_name,
+                                                         # object_name)
+            # orig_name = headers.get("x-object-meta-orig-filename")
+            # timestamp = None
+            # try:
+                # ts_float = float(headers.get('x-timestamp'))
+                # timestamp = datetime.utcfromtimestamp(ts_float).isoformat()
+            # except Exception:
+                # pass
+            # obj_info = {
+                # 'name': object_name,
+                # # FIXME :This should a httpresponse
+                # 'data': data,
+                # 'orig_name': orig_name,
+                # 'bytes': headers.get('content-length'),
+                # 'content_type': headers.get('content-type'),
+                # 'etag': headers.get('etag'),
+                # 'timestamp': timestamp,
+            # }
+            # return common_success_response([obj_info], "get object successfully!")
         except Exception as e:
             return common_error_response(" Get object failed, error is %s" %e)
 
