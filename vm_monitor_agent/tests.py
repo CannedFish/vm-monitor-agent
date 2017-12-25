@@ -282,7 +282,7 @@ def api_test():
 
     print "#14 start to get container object"
     created_container = "config" + str(uuid.uuid4())
-    r = requests.get('http://127.0.0.1:%s/api/get_object?user=%s&key=%s&tenant_name=%s&auth_url=%s&container_name=%s&object_name=%s&with_data=1&download_to=/clouddoc' %(settings['port'],USER, KEY,TENANT_NAME,AUTH_URL, CONTAINER_NAME, OBJECT_NAME))
+    r = requests.get('http://127.0.0.1:%s/api/get_object?user=%s&key=%s&tenant_name=%s&auth_url=%s&container_name=%s&object_name=%s&with_data=1&download_to=/clouddoc/abc' %(settings['port'],USER, KEY,TENANT_NAME,AUTH_URL, CONTAINER_NAME, OBJECT_NAME))
 
     return_json = json.loads(r.content)
     print "results are " + str(return_json)

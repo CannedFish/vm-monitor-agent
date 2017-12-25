@@ -544,7 +544,7 @@ class Swift_Get_Object:
                 return common_error_response("Container name is required")
             if not download_to:
                 return common_error_response("Path to save download file is required")
-            return swift_download_object(save_path, {\
+            return swift_download_object(path.dirname(download_to), {\
                 'user': data.get('user'),\
                 'key': data.get('key'),\
                 'auth_url': data.get('auth_url'),\
