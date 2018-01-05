@@ -2,6 +2,7 @@
 import web
 import json
 import logging
+import base64
 import agent
 
 import data_collector as dc
@@ -537,8 +538,9 @@ class Swift_Get_Object:
         with_data = data.get('with_data')
         resp_chunk_size = CHUNK_SIZE
         container_name = data.get('container_name')
-        object_name = data.get('object_name')
-        download_to = data.get('download_to')
+        object_name = unicode(base64.b64decode(data.get('object_name')), "utf8", errors="ignore")
+        download_to = unicode(base64.b64decode(data.get('download_to')), "utf8", errors="ignore")
+        LOG.debug("%s, %s" % (object_name, download_to))
         try:
             if not container_name:
                 return common_error_response("Container name is required")
@@ -550,7 +552,7 @@ class Swift_Get_Object:
                 'auth_url': data.get('auth_url'),\
                 'tenant_name': data.get('tenant_name'),\
                 'container_name': data.get('container_name'),\
-                'object_name': data.get('object_name'),\
+                'object_name': object_name,\
                 'orig_name': path.basename(download_to),\
                 'with_data': 1\
             })
