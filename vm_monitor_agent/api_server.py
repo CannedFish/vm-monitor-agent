@@ -537,9 +537,12 @@ class Swift_Get_Object:
         data = web.input()
         with_data = data.get('with_data')
         resp_chunk_size = CHUNK_SIZE
-        container_name = unicode(base64.b64decode(data.get('container_name')), "utf8", errors="ignore")
-        object_name = unicode(base64.b64decode(data.get('object_name')), "utf8", errors="ignore")
-        download_to = unicode(base64.b64decode(data.get('download_to')), "utf8", errors="ignore")
+        LOG.debug("container name: %s" % data.get('container_name').replace(' ', '+'))
+        container_name = unicode(base64.b64decode(data.get('container_name').replace(' ', '+')), "utf8", errors="ignore")
+        LOG.debug("object name: %s" % data.get('object_name').replace(' ', '+'))
+        object_name = unicode(base64.b64decode(data.get('object_name').replace(' ', '+')), "utf8", errors="ignore")
+        LOG.debug("download to: %s" % data.get('download_to').replace(' ', '+'))
+        download_to = unicode(base64.b64decode(data.get('download_to').replace(' ', '+')), "utf8", errors="ignore")
         LOG.debug("%s, %s" % (object_name, download_to))
         try:
             if not container_name:
