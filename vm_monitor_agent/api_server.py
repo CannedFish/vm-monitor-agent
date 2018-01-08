@@ -327,7 +327,8 @@ class Swift_Get_Objects:
         prefix = None
         marker = None
         auth_spec = get_auth_spec(data)
-        container_name = data.get('container_name')
+        LOG.debug("container name: %s" % data.get('container_name').replace(' ', '+'))
+        container_name = unicode(base64.b64decode(data.get('container_name').replace(' ', '+')), "utf8", errors="ignore")
         if not container_name:
             return common_error_response("Container name is required")
         limit = limit or getattr(settings, 'API_RESULT_LIMIT', 1000)
