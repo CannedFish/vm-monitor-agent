@@ -537,7 +537,7 @@ class Swift_Get_Object:
         data = web.input()
         with_data = data.get('with_data')
         resp_chunk_size = CHUNK_SIZE
-        container_name = data.get('container_name')
+        container_name = unicode(base64.b64decode(data.get('container_name')), "utf8", errors="ignore")
         object_name = unicode(base64.b64decode(data.get('object_name')), "utf8", errors="ignore")
         download_to = unicode(base64.b64decode(data.get('download_to')), "utf8", errors="ignore")
         LOG.debug("%s, %s" % (object_name, download_to))
@@ -551,7 +551,7 @@ class Swift_Get_Object:
                 'key': data.get('key'),\
                 'auth_url': data.get('auth_url'),\
                 'tenant_name': data.get('tenant_name'),\
-                'container_name': data.get('container_name'),\
+                'container_name': container_name,\
                 'object_name': object_name,\
                 'orig_name': path.basename(download_to),\
                 'with_data': 1\
