@@ -74,6 +74,7 @@ def main():
 
     LOG.info("Agent Rabbit's PID: %s" % os.getpid())
     LOG.info("VM UUID: %s" % vm_uuid)
+    LOG.info("Monitor directory: %s" % settings.dir_to_be_monitored)
     # initialization
     try:
         signal.signal(signal.SIGINT, exit_handler)
