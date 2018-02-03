@@ -16,6 +16,11 @@ class AutoUploader(MyThread):
         self._monitor = monitor
         self._interval = interval
 
+    def __new_obj_name(self, filename):
+        pos = filename.rfind('.')
+        now = time.strftime("%Y%m%d%H%M%S", time.localtime())
+        return "%s-%s%s" % (filename[:pos], now, filename[pos:])
+
     def work(self):
         try:
             q = self._monitor.get_changed_files()
@@ -29,14 +34,15 @@ class AutoUploader(MyThread):
                         continue
                     info = DB.get_info()
                     filename = path.basename(filepath)
+                    obj_name = self.__new_obj_name(filename)
                     swift.upload_object('', {
                         'user': info['usr'],
                         'key': info['pwd'],
                         'auth_url': info['auth_url'],
                         'tenant_name': info['tenant_name'],
                         'container_name': ret[0],
-                        'object_name': ret[1],
-                        'orig_file_name': filename
+                        'object_name': obj_name,
+                        'orig_file_name': obj_name
                     }, {
                         'upload_file': (filename, open(filepath, 'rb'))
                     })

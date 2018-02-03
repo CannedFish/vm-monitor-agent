@@ -54,6 +54,7 @@ class MonitorThread(MyThread):
 			# print full_filename, self.ACTIONS.get(action, "Unknown")
 			if action == 3: 
 				self._queue.append(full_filename)
+            # TODO: update localpath when action 4 or 5 happened.
 
 	@property
 	def changed_files(self):

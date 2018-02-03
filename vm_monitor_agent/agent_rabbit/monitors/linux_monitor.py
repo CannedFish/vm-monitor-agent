@@ -11,6 +11,7 @@ LOG = logging.getLogger(__name__)
 class EventHandler(pyinotify.ProcessEvent):
     def process_IN_MODIFY(self, event):
         LinuxDirMonitor._queue.append(event.pathname)
+        # TODO: update local path when change name event received
 
     def process_default(self, event):
         LOG.info("%s, %s" % (event.pathname, event.maskname))

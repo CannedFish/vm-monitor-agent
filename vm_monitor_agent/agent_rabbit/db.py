@@ -24,11 +24,24 @@ class _DB(object):
     def get_ids_by_localpath(self, local_path):
         try:
             cur = self._conn.cursor()
-            ret = cur.execute("SELECT container_id,object_id,orig_name,content_type \
+            ret = cur.execute("SELECT container_id,object_id,orig_name,content_type,uuid \
                     FROM MESSAGES WHERE local_path='%s'" % local_path)
             return ret.fetchone()
         except Exception, e:
             LOG.error(e)
+
+    def update_local_path_by_uuid(self, uuid, local_path):
+        try:
+            cur = self._conn.cursor()
+            cur.execute("UPDATE MESSAGES SET local_path='%s' \
+                    where uuid='%s'" \
+                    % (local_path, uuid))
+            self._conn.commit()
+            return True
+        except Exception, e:
+            print "update_local_path_by_uuid:", e
+            LOG.error(e)
+            return False
 
     def _init_info(self):
         try:
