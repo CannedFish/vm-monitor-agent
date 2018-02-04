@@ -49,9 +49,9 @@ def main():
         "rabbitmq.queue_durable": settings.queue_durable,
         "rabbitmq.queue_auto_delete": settings.queue_auto_delete,
         "rabbitmq.queue_exclusive": settings.queue_exclusive,
-        "rabbitmq.routing_key": settings.routing_key,
+        "rabbitmq.routing_key": "this-is-not-a-uuid",
         "rabbitmq.prefetch_count": settings.prefetch_count,
-        "rabbitmq.workOrderQueue": settings.workOrderQueue
+        "rabbitmq.workOrderQueue": "this-is-not-a-uuid"
     }
 
     LOG.info(json.dumps(WORKORDER_RABBITMQ_PROP))
@@ -60,13 +60,13 @@ def main():
     mq_sender = MQ_Send_Service(WORKORDER_RABBITMQ_PROP)
     info = {
         "uuid": "abcdkeasjfk-sajdfwjf203",
-        "container_id": "test_swift",
-        "object_id": "test_swift.xlsx",
+        "container_id": "test",
+        "object_id": "down-20180204050909.xlsx",
         "username": "yes",
         "password": "123",
-        "auth_url": "http://192.168.1.89:5000/v2.0",
+        "auth_url": "http://192.168.1.52:5000/v2.0",
         "tenant_name": "yes",
-        "orig_name": "test_swift.xlsx",
+        "orig_name": "down.xlsx",
         "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     }
     mq_sender.send_message(json.dumps(info))

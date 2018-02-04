@@ -552,6 +552,7 @@ def upload_object(request, data, files):
         return common_error_response("Container name is required")
     if object_file:
         headers['X-Object-Meta-Orig-Filename'] = data['orig_file_name']
+        # headers['content-type'] = data['content_type']
         #size = object_file.size
     try:
         etag = swift_api(**auth_spec).put_object(container_name,

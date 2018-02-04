@@ -35,18 +35,20 @@ class AutoUploader(MyThread):
                     info = DB.get_info()
                     filename = path.basename(filepath)
                     obj_name = self.__new_obj_name(filename)
-                    swift.upload_object('', {
+                    LOG.info("Try to upload file %s to %s/%s" % (filepath, ret[0], obj_name))
+                    ret = swift.upload_object('', {
                         'user': info['usr'],
                         'key': info['pwd'],
                         'auth_url': info['auth_url'],
                         'tenant_name': info['tenant_name'],
                         'container_name': ret[0],
                         'object_name': obj_name,
-                        'orig_file_name': obj_name
+                        'orig_file_name': obj_name,
+                        'content_type': ret[3]
                     }, {
-                        'upload_file': (filename, open(filepath, 'rb'))
+                        'upload_file': open(filepath, 'rb')
                     })
-                    LOG.info("Auto uploaded file %s to %s/%s" % (filepath, ret[0], ret[1]))
+                    LOG.info("Upload result: %s" % ret)
             time.sleep(self._interval)
         except Exception, e:
             LOG.error(e)
