@@ -18,6 +18,7 @@ from swift_common import common_error_response, common_success_response, GLOBAL_
     CHUNK_SIZE, LIST_CONTENTS_ACL, _metadata_to_header, FOLDER_DELIMITER, wildcard_search, swift_api, Container, \
     get_auth_spec, swift_object_exists, swift_get_objects, _objectify, swift_container_exists
 from swift import get_object as swift_download_object
+from swiftclient.service import SwiftService, SwiftError, SwiftUploadObject
 
 LOG = logging.getLogger()
 
@@ -419,25 +420,37 @@ class Swift_Upload_Object:
         size = 0
         data = web.input()
         print data
-        auth_spec = get_auth_spec(data)
+        # auth_spec = get_auth_spec(data)
         container_name = data['container_name']
         object_name = data['object_name']
         object_file = data['upload_file']
         if not container_name:
             return common_error_response("Container name is required")
-        if object_file:
-            headers['X-Object-Meta-Orig-Filename'] = data['orig_file_name']
-            #size = object_file.size
+        # if object_file:
+            # headers['X-Object-Meta-Orig-Filename'] = data['orig_file_name']
+            # size = object_file.size
         try:
-            auth_spec = get_auth_spec(data)
-            etag = swift_api(**auth_spec).put_object(container_name,
-                                                 object_name,
-                                                 object_file,
-                                                 #content_length=size,
-                                                 headers=headers)
+            opts = {
+                'os_auth_url': data.get('auth_url'),
+                'os_username': data.get('user'),
+                'os_password': data.get('key'),
+                'os_tenant_name': data.get('tenant_name')
+            }
+            with SwiftService(options=opts) as swift:
+                try:
+                    obj = SwiftUploadObject(object_file, object_name=object_name)
+                    return common_success_response([r for r in swift.upload(container_name, [obj])], "Upload object successfully!")
+                except SwiftError as e:
+                    return common_error_response("Upload object is failed, error is %s" % e)
+            # auth_spec = get_auth_spec(data)
+            # etag = swift_api(**auth_spec).put_object(container_name,
+                                                 # object_name,
+                                                 # object_file,
+                                                 # #content_length=size,
+                                                 # headers=headers)
 
-            obj_info = {'name': object_name, 'bytes': size, 'etag': etag}
-            return common_success_response([obj_info], "Upload object is successfully!")
+            # obj_info = {'name': object_name, 'bytes': size, 'etag': etag}
+            # return common_success_response([obj_info], "Upload object is successfully!")
         except Exception as e:
             return common_error_response("Upload object is failed, error is %s" %e)
 

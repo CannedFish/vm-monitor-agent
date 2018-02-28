@@ -737,7 +737,7 @@ def get_object(request, data):
                 down_iter = swift.download(container=container, objects=objects)
                 return common_success_response([down for down in down_iter], "get object successfully!")
             except SwiftError as e:
-                logger.error(e.value)
+                return common_error_response(" Get object failed, error is %s" %e)
 
     except Exception as e:
         return common_error_response(" Get object failed, error is %s" %e)
