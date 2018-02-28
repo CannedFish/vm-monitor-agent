@@ -418,12 +418,12 @@ class Swift_Upload_Object:
     def POST(self):
         headers = {}
         size = 0
-        data = web.input()
+        data = json.loads(web.input().data)
         print data
         # auth_spec = get_auth_spec(data)
-        container_name = data.get('container_name')
-        object_name = data.get('object_name')
-        object_file = data.get('upload_file')
+        container_name = data['container_name']
+        object_name = data['object_name']
+        object_file = data['upload_file']
         if not container_name:
             return common_error_response("Container name is required")
         # if object_file:
@@ -431,10 +431,10 @@ class Swift_Upload_Object:
             # size = object_file.size
         try:
             opts = {
-                'os_auth_url': data.get('auth_url'),
-                'os_username': data.get('user'),
-                'os_password': data.get('key'),
-                'os_tenant_name': data.get('tenant_name')
+                'os_auth_url': data['auth_url'],
+                'os_username': data['user'],
+                'os_password': data['key'],
+                'os_tenant_name': data['tenant_name']
             }
             with SwiftService(options=opts) as swift:
                 try:
