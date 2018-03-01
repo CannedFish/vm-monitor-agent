@@ -441,7 +441,7 @@ class Swift_Upload_Object:
                             return common_success_response([r], "Upload object successfully!")
                         else:
                             error = r['error']
-                            return common_error_response("Upload object is failed, error is %s" % error.value)
+                            return common_error_response("Upload object is failed, error is %s" % error)
             except Exception as e:
                 return common_error_response("Upload object is failed, error is %s" % e.value)
         
