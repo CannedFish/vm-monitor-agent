@@ -420,40 +420,31 @@ class Swift_Upload_Object:
         size = 0
         data = json.loads(web.input().data)
         print data
-        # auth_spec = get_auth_spec(data)
         container_name = data['container_name']
         object_name = data['object_name']
         object_file = data['upload_file']
         if not container_name:
             return common_error_response("Container name is required")
-        # if object_file:
-            # headers['X-Object-Meta-Orig-Filename'] = data['orig_file_name']
-            # size = object_file.size
-        try:
-            opts = {
-                'os_auth_url': data['auth_url'],
-                'os_username': data['user'],
-                'os_password': data['key'],
-                'os_tenant_name': data['tenant_name']
-            }
-            with SwiftService(options=opts) as swift:
-                try:
-                    obj = SwiftUploadObject(object_file, object_name=object_name)
-                    return common_success_response([r for r in swift.upload(container_name, [obj])], "Upload object successfully!")
-                except SwiftError as e:
-                    return common_error_response("Upload object is failed, error is %s" % e)
-            # auth_spec = get_auth_spec(data)
-            # etag = swift_api(**auth_spec).put_object(container_name,
-                                                 # object_name,
-                                                 # object_file,
-                                                 # #content_length=size,
-                                                 # headers=headers)
-
-            # obj_info = {'name': object_name, 'bytes': size, 'etag': etag}
-            # return common_success_response([obj_info], "Upload object is successfully!")
-        except Exception as e:
-            return common_error_response("Upload object is failed, error is %s" %e)
-
+        
+        opts = {
+            'os_auth_url': data['auth_url'],
+            'os_username': data['user'],
+            'os_password': data['key'],
+            'os_tenant_name': data['tenant_name']
+        }
+        with SwiftService(options=opts) as swift:
+            try:
+                obj = SwiftUploadObject(object_file, object_name=object_name)
+                for r in swift.upload(container_name, [obj]):
+                    if 'action' in r and r['action'] == 'upload_object':
+                        if r['success']:
+                            return common_success_response([r], "Upload object successfully!")
+                        else:
+                            error = r['error']
+                            return common_error_response("Upload object is failed, error is %s" % error.value)
+            except Exception as e:
+                return common_error_response("Upload object is failed, error is %s" % e.value)
+        
     def GET(self):
         return web.forbidden(" GET Method is not supported ")
 
