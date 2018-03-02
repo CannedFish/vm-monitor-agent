@@ -507,24 +507,28 @@ def copy_object(request, data):
     except Exception as e:
         return common_error_response("Copy object failed, error is %s!" %e)
 
+MAX_FILE_SIZE = 5 * 1024 ** 3 # 5GB
+SEGMENT_SIZE = MAX_FILE_SIZE - int(round(0.1 * 1024 ** 3)) # 4.9GB
 
-def upload_object(request, data, files):
+def upload_object(data):
     """
     Upload object is uploading file to an existed object or create a new one.
-    :param request: 
+    # :param request:
     :param data: 
     
             data = {
-            "user": USER,
-            "key": KEY,
-            "auth_url": AUTH_URL,
-            "tenant_name": TENANT_NAME,
-            "container_name": CONTAINER_NAME,
-            "object_name": new_created_object,
-            "orig_file_name":  f.name, #filename
+                "user": USER,
+                "key": KEY,
+                "auth_url": AUTH_URL,
+                "tenant_name": TENANT_NAME,
+                "container_name": CONTAINER_NAME,
+                "object_name": new_created_object,
+                "orig_file_name":  f.name, #filename,
+                "upload_file": FILE_PATH,
+                "file_size": BYTES_OF_THIS_FILE
             }
-    :param files:
-        files = {'upload_file': ('test.txt',open("/tmp/test.txt", 'rb'))}
+    # :param files:
+        # files = {'upload_file': ('test.txt',open("/tmp/test.txt", 'rb'))}
     :return: 
     
     
@@ -542,29 +546,56 @@ def upload_object(request, data, files):
     
     
     """
-    headers = {}
-    size = 0
-    auth_spec = get_auth_spec(data)
     container_name = data['container_name']
     object_name = data['object_name']
-    object_file = files['upload_file']
+    object_file = data['upload_file']
+    file_size = data['file_size']
     if not container_name:
         return common_error_response("Container name is required")
-    if object_file:
-        headers['X-Object-Meta-Orig-Filename'] = data['orig_file_name']
-        # headers['content-type'] = data['content_type']
-        #size = object_file.size
-    try:
-        etag = swift_api(**auth_spec).put_object(container_name,
-                                             object_name,
-                                             object_file,
-                                             #content_length=size,
-                                             headers=headers)
+    
+    opts = {
+        'os_auth_url': data['auth_url'],
+        'os_username': data['user'],
+        'os_password': data['key'],
+        'os_tenant_name': data['tenant_name']
+    }
+    if file_size >= MAX_FILE_SIZE:
+        opts['segment_size'] = SEGMENT_SIZE
+    with SwiftService(options=opts) as swift:
+        try:
+            obj = SwiftUploadObject(object_file, object_name=object_name)
+            for r in swift.upload(container_name, [obj]):
+                if 'action' in r and r['action'] == 'upload_object':
+                    if r['success']:
+                        return common_success_response([r], "Upload object successfully!")
+                    else:
+                        error = r['error']
+                        return common_error_response("Upload object is failed, error is %s" % error)
+        except Exception as e:
+            return common_error_response("Upload object is failed, error is %s" % e.value)
+    # headers = {}
+    # size = 0
+    # auth_spec = get_auth_spec(data)
+    # container_name = data['container_name']
+    # object_name = data['object_name']
+    # object_file = files['upload_file']
+    # if not container_name:
+        # return common_error_response("Container name is required")
+    # if object_file:
+        # headers['X-Object-Meta-Orig-Filename'] = data['orig_file_name']
+        # # headers['content-type'] = data['content_type']
+        # #size = object_file.size
+    # try:
+        # etag = swift_api(**auth_spec).put_object(container_name,
+                                             # object_name,
+                                             # object_file,
+                                             # #content_length=size,
+                                             # headers=headers)
 
-        obj_info = {'name': object_name, 'bytes': size, 'etag': etag}
-        return common_success_response([obj_info], "Upload object is successfully!")
-    except Exception as e:
-        return common_error_response("Upload object is failed, error is %s" %e)
+        # obj_info = {'name': object_name, 'bytes': size, 'etag': etag}
+        # return common_success_response([obj_info], "Upload object is successfully!")
+    # except Exception as e:
+        # return common_error_response("Upload object is failed, error is %s" %e)
 
 
 def create_pseduo_folder(request, data):

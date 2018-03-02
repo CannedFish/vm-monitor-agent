@@ -17,7 +17,8 @@ from config import settings
 from swift_common import common_error_response, common_success_response, GLOBAL_READ_ACL, \
     CHUNK_SIZE, LIST_CONTENTS_ACL, _metadata_to_header, FOLDER_DELIMITER, wildcard_search, swift_api, Container, \
     get_auth_spec, swift_object_exists, swift_get_objects, _objectify, swift_container_exists
-from swift import get_object as swift_download_object
+from swift import get_object as swift_download_object, \
+        upload_object as swift_upload_object
 from swiftclient.service import SwiftService, SwiftError, SwiftUploadObject
 
 LOG = logging.getLogger()
@@ -415,8 +416,8 @@ class Swift_Copy_Object:
     def GET(self):
         return web.forbidden(" GET Method is not supported ")
 
-MAX_FILE_SIZE = 5 * 1024 ** 3 # 5GB
-SEGMENT_SIZE = MAX_FILE_SIZE - int(round(0.1 * 1024 ** 3)) # 4.9GB
+# MAX_FILE_SIZE = 5 * 1024 ** 3 # 5GB
+# SEGMENT_SIZE = MAX_FILE_SIZE - int(round(0.1 * 1024 ** 3)) # 4.9GB
 
 class Swift_Upload_Object:
     def POST(self):
@@ -424,33 +425,34 @@ class Swift_Upload_Object:
         size = 0
         data = json.loads(web.input().data)
         print data
-        container_name = data['container_name']
-        object_name = data['object_name']
-        object_file = data['upload_file']
-        file_size = data['file_size']
-        if not container_name:
-            return common_error_response("Container name is required")
+        return swift_upload_object(data)
+        # container_name = data['container_name']
+        # object_name = data['object_name']
+        # object_file = data['upload_file']
+        # file_size = data['file_size']
+        # if not container_name:
+            # return common_error_response("Container name is required")
         
-        opts = {
-            'os_auth_url': data['auth_url'],
-            'os_username': data['user'],
-            'os_password': data['key'],
-            'os_tenant_name': data['tenant_name']
-        }
-        if file_size >= MAX_FILE_SIZE:
-            opts['segment_size'] = SEGMENT_SIZE
-        with SwiftService(options=opts) as swift:
-            try:
-                obj = SwiftUploadObject(object_file, object_name=object_name)
-                for r in swift.upload(container_name, [obj]):
-                    if 'action' in r and r['action'] == 'upload_object':
-                        if r['success']:
-                            return common_success_response([r], "Upload object successfully!")
-                        else:
-                            error = r['error']
-                            return common_error_response("Upload object is failed, error is %s" % error)
-            except Exception as e:
-                return common_error_response("Upload object is failed, error is %s" % e.value)
+        # opts = {
+            # 'os_auth_url': data['auth_url'],
+            # 'os_username': data['user'],
+            # 'os_password': data['key'],
+            # 'os_tenant_name': data['tenant_name']
+        # }
+        # if file_size >= MAX_FILE_SIZE:
+            # opts['segment_size'] = SEGMENT_SIZE
+        # with SwiftService(options=opts) as swift:
+            # try:
+                # obj = SwiftUploadObject(object_file, object_name=object_name)
+                # for r in swift.upload(container_name, [obj]):
+                    # if 'action' in r and r['action'] == 'upload_object':
+                        # if r['success']:
+                            # return common_success_response([r], "Upload object successfully!")
+                        # else:
+                            # error = r['error']
+                            # return common_error_response("Upload object is failed, error is %s" % error)
+            # except Exception as e:
+                # return common_error_response("Upload object is failed, error is %s" % e.value)
         
     def GET(self):
         return web.forbidden(" GET Method is not supported ")

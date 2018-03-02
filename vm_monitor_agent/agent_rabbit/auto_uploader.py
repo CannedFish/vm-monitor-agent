@@ -4,7 +4,7 @@ from vm_monitor_agent.common import MyThread
 from vm_monitor_agent import swift
 from db import DB
 
-from os import path
+from os import path, stat
 import time
 import logging
 
@@ -36,20 +36,19 @@ class AutoUploader(MyThread):
                     filename = path.basename(filepath)
                     obj_name = self.__new_obj_name(filename)
                     LOG.info("Try to upload file %s to %s/%s" % (filepath, ret[0], obj_name))
-                    with open(filepath, 'rb') as fd:
-                        ret = swift.upload_object('', {
-                            'user': info['usr'],
-                            'key': info['pwd'],
-                            'auth_url': info['auth_url'],
-                            'tenant_name': info['tenant_name'],
-                            'container_name': ret[0],
-                            'object_name': obj_name,
-                            'orig_file_name': obj_name,
-                            'content_type': ret[3]
-                        }, {
-                            'upload_file': fd
-                        })
-                        LOG.info("Upload result: %s" % ret)
+                    ret = swift.upload_object({
+                        'user': info['usr'],
+                        'key': info['pwd'],
+                        'auth_url': info['auth_url'],
+                        'tenant_name': info['tenant_name'],
+                        'container_name': ret[0],
+                        'object_name': obj_name,
+                        'orig_file_name': obj_name,
+                        'content_type': ret[3],
+                        'upload_file': filepath,
+                        'file_size': stat(filepath).st_size
+                    })
+                    LOG.info("Upload result: %s" % ret)
             time.sleep(self._interval)
         except Exception, e:
             LOG.error(e)
