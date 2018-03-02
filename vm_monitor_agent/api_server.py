@@ -19,7 +19,6 @@ from swift_common import common_error_response, common_success_response, GLOBAL_
     get_auth_spec, swift_object_exists, swift_get_objects, _objectify, swift_container_exists
 from swift import get_object as swift_download_object, \
         upload_object as swift_upload_object
-from swiftclient.service import SwiftService, SwiftError, SwiftUploadObject
 
 LOG = logging.getLogger()
 

@@ -7,7 +7,7 @@ from os import path
 from swift_common import get_auth_spec, swift_api, Container, common_success_response, common_error_response, GLOBAL_READ_ACL, \
     swift_container_exists, _metadata_to_header, swift_get_objects, FOLDER_DELIMITER, _objectify, wildcard_search, \
     swift_object_exists, CHUNK_SIZE
-from swiftclient.service import SwiftService, SwiftError
+from swiftclient.service import SwiftService, SwiftError, SwiftUploadObject
 
 
 
