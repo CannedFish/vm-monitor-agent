@@ -136,7 +136,8 @@ class Swift_Containers:
         try:
             auth_spec = get_auth_spec(data)
             headers, containers = swift_api(**auth_spec).get_account()
-            containerobjs = [Container(container).to_dict() for container in containers]
+            containerobjs = filter(lambda x: not x['name'].endswith('_segments'),
+                    [Container(container).to_dict() for container in containers])
             msg = "Get containers list successfully"
             return common_success_response(containerobjs, msg)
         except Exception as e:
@@ -414,6 +415,9 @@ class Swift_Copy_Object:
     def GET(self):
         return web.forbidden(" GET Method is not supported ")
 
+MAX_FILE_SIZE = 5 * 1024 ** 3 # 5GB
+SEGMENT_SIZE = MAX_FILE_SIZE - int(round(0.1 * 1024 ** 3)) # 4.9GB
+
 class Swift_Upload_Object:
     def POST(self):
         headers = {}
@@ -423,6 +427,7 @@ class Swift_Upload_Object:
         container_name = data['container_name']
         object_name = data['object_name']
         object_file = data['upload_file']
+        file_size = data['file_size']
         if not container_name:
             return common_error_response("Container name is required")
         
@@ -432,6 +437,8 @@ class Swift_Upload_Object:
             'os_password': data['key'],
             'os_tenant_name': data['tenant_name']
         }
+        if file_size >= MAX_FILE_SIZE:
+            opts['segment_size'] = SEGMENT_SIZE
         with SwiftService(options=opts) as swift:
             try:
                 obj = SwiftUploadObject(object_file, object_name=object_name)
